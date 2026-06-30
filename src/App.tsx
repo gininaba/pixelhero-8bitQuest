@@ -568,23 +568,33 @@ export default function App() {
 
             {/* overlays */}
             {phase==='menu' && (
-              <div className="absolute inset-0 bg-[#060c0b]/[0.93] flex items-center justify-center z-30 px-4">
-                <div className="max-w-[500px] w-full text-center">
-                  <div className="pixelfont text-[9px] sm:text-[10px] text-[#7ee9a8] tracking-widest uppercase">8-Bit Arcade RPG</div>
-                  <img 
-                    src="/pixelquest_logo.png" 
-                    alt="PixelHero Logo" 
-                    className="w-[65%] max-w-[260px] mx-auto my-4 drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]" 
-                    style={{ imageRendering: 'pixelated' }} 
-                  />
-                  <div className="pixelfont text-[9px] sm:text-[10px] text-[#ffcf6b] tracking-wider">THE BEAN-CURSE SAGA</div>
-                  <p className="vtt text-[18px] sm:text-[21px] text-[#c9e8ce] mt-4 leading-normal max-w-[420px] mx-auto">
+              <div className="absolute inset-0 bg-[#060c0b]/[0.93] flex items-center justify-center z-30 px-4 py-3">
+                <div className="max-w-[480px] h-full w-full flex flex-col justify-between items-center text-center">
+                  <div className="pixelfont text-[9px] sm:text-[10px] text-[#7ee9a8] tracking-widest uppercase">
+                    8-Bit Arcade RPG
+                  </div>
+                  
+                  <div className="h-[35%] max-h-[170px] min-h-[80px] flex items-center justify-center my-1">
+                    <img 
+                      src="/pixelquest_logo.png" 
+                      alt="PixelHero Logo" 
+                      className="h-full w-auto object-contain drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]" 
+                      style={{ imageRendering: 'pixelated' }} 
+                    />
+                  </div>
+                  
+                  <div className="pixelfont text-[9px] sm:text-[10px] text-[#ffcf6b] tracking-wider">
+                    THE BEAN-CURSE SAGA
+                  </div>
+                  
+                  <p className="vtt text-[17px] sm:text-[20px] text-[#c9e8ce] leading-tight max-w-[420px] mx-auto my-1">
                     Emberwick’s fields wilt. Slimes boil in Gloomwood. Talk to Elder Mael, clear tasks, steal the Hollow Key, and topple Gruk the Rot-Tusk.
                   </p>
-                  <div className="mt-6 flex flex-wrap justify-center items-center gap-3">
+                  
+                  <div className="flex flex-wrap justify-center items-center gap-3 my-1">
                     <button 
                       onClick={startGame} 
-                      className="pixelfont text-[11px] sm:text-[12px] px-6 py-[12px] sm:px-7 sm:py-[14px] rounded-[8px] bg-[#33d17a] text-[#052116] border-[3px] border-[#b9ffd8] shadow-[0_4px_0_#0a7a43] active:translate-y-[4px] active:shadow-[0_0px_0_#0a7a43] transition-all cursor-pointer"
+                      className="pixelfont text-[10px] sm:text-[11px] px-5 py-[10px] sm:px-6 sm:py-[12px] rounded-[8px] bg-[#33d17a] text-[#052116] border-[3px] border-[#b9ffd8] shadow-[0_3px_0_#0a7a43] active:translate-y-[3px] active:shadow-none transition-all cursor-pointer"
                     >
                       START QUEST
                     </button>
@@ -593,12 +603,15 @@ export default function App() {
                         const hsEl = document.getElementById('scores');
                         hsEl?.scrollIntoView({behavior:'smooth'});
                       }} 
-                      className="pixelfont text-[10px] px-5 py-[11px] sm:px-5 sm:py-[12px] rounded-[8px] bg-[#18251f] text-[#b8f4ce] border-2 border-[#2c5540] cursor-pointer hover:bg-[#203229] transition-all"
+                      className="pixelfont text-[9px] sm:text-[10px] px-4 py-[9px] sm:px-5 sm:py-[11px] rounded-[8px] bg-[#18251f] text-[#b8f4ce] border-2 border-[#2c5540] cursor-pointer hover:bg-[#203229] transition-all"
                     >
                       HIGH SCORES
                     </button>
                   </div>
-                  <div className="pixelfont text-[8px] sm:text-[9px] text-[#709a7f] mt-6">Keyboard + Touch Controls • 60 FPS • Instant Restart</div>
+                  
+                  <div className="pixelfont text-[8px] sm:text-[9px] text-[#709a7f]">
+                    Keyboard + Touch Controls • 60 FPS • Instant Restart
+                  </div>
                 </div>
               </div>
             )}
