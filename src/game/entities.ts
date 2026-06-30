@@ -92,35 +92,77 @@ export const seedZone = (gr: GameState, zone: ZoneId) => {
     }
 
   } else if (zone === 1) {
-    // GLOOMWOOD — Forest
+    // PROCEDURAL INFINITE DUNGEON
     gr.enemies = [];
-    gr.drops.forEach(d => { if (d.type !== 'key') d.active = false; });
+    gr.drops = []; // Clear old drops
+    
+    const floor = gr.dungeonFloor || 1;
+    const cycle = Math.floor((floor - 1) / 3) % 4; // Cycles: 0=Forest, 1=Desert, 2=Dungeon, 3=Sanctum
 
-    for (let i = 0; i < 6; i++) gr.enemies.push(makeEnemy('slime', rand(120, GAME_W - 120), rand(140, GAME_H - 130), ngScale));
-    for (let i = 0; i < 3; i++) gr.enemies.push(makeEnemy('bat', rand(160, GAME_W - 160), rand(120, GAME_H - 170), ngScale));
-    gr.enemies.push(makeEnemy('goblin', GAME_W * 0.74, 260, ngScale));
+    // Spawn stairs/portal down
+    const stairsX = Math.floor(rand(650, GAME_W - 100));
+    const stairsY = Math.floor(rand(180, GAME_H - 100));
+    gr.decor.push({ id: nextId(), type: 'stairs', x: stairsX, y: stairsY, variant: 0 });
 
-    gr.drops = gr.drops.filter(d => d.type === 'key');
-    for (let i = 0; i < 5; i++) {
-      spawnDrop(gr, { id: nextId(), type: 'herb', x: rand(90, GAME_W - 90), y: rand(150, GAME_H - 120), bob: Math.random() * 6.28, taken: false });
-    }
-    for (let i = 0; i < 7; i++) {
-      spawnDrop(gr, { id: nextId(), type: 'coin', x: rand(80, GAME_W - 80), y: rand(140, GAME_H - 100), bob: Math.random() * 6.28, taken: false });
-    }
-    const keyAlready = gr.drops.some(d => d.type === 'key' && d.active && !d.taken);
-    if (!gr.hasKey && !keyAlready) {
-      spawnDrop(gr, { id: nextId(), type: 'key', x: GAME_W - 140, y: 176, bob: 0, taken: false });
+    // Boss floor check (every 5th floor)
+    const isBossFloor = floor % 5 === 0;
+
+    if (isBossFloor) {
+      const bossType = floor === 5 ? 'sandwyrm' : floor === 10 ? 'boss' : 'shadow_warden';
+      const bossX = GAME_W / 2;
+      const bossY = GAME_H / 2 + 30;
+      const bossScale = ngScale * (1.0 + (floor - 5) * 0.12);
+      gr.enemies.push(makeEnemy(bossType, bossX, bossY, bossScale));
+      
+      const bossName = bossType === 'sandwyrm' ? 'SAND WYRM' : bossType === 'boss' ? 'GRUK THE ROT-TUSK' : 'SHADOW WARDEN';
+      spawnFloater(gr, { x: bossX, y: bossY - 45, text: `${bossName} FLOOR`, color: '#ff3366', life: 90, vy: -0.5 });
+    } else {
+      // Regular Floor
+      const enemyCount = Math.floor(rand(3, 5) + floor * 0.85);
+      const enemyPools: Record<number, Enemy['type'][]> = {
+        0: ['slime', 'bat', 'goblin'],
+        1: ['scorpion', 'goblin', 'bat'],
+        2: ['skeleton', 'goblin', 'wraith'],
+        3: ['wraith', 'skeleton', 'scorpion']
+      };
+      const pool = enemyPools[cycle] || ['slime', 'bat'];
+
+      for (let i = 0; i < enemyCount; i++) {
+        // Spawn enemies away from the left start area (player starts at x=48)
+        const ex = rand(260, GAME_W - 80);
+        const ey = rand(150, GAME_H - 80);
+        const etype = pool[Math.floor(Math.random() * pool.length)];
+        const enemyScale = ngScale * (1.0 + (floor - 1) * 0.08);
+        gr.enemies.push(makeEnemy(etype, ex, ey, enemyScale));
+      }
     }
 
-    // Gloomwood Decor
-    for (let i = 0; i < 14; i++) {
-      gr.decor.push({ id: nextId(), type: 'grass', x: rand(60, GAME_W - 60), y: rand(130, GAME_H - 70), variant: Math.floor(rand(0, 3)) });
+    // Spawn theme-specific decor
+    const decorPools: Record<number, string[]> = {
+      0: ['grass', 'flower', 'rock', 'mushroom'],
+      1: ['cactus', 'bones', 'rock'],
+      2: ['rock', 'mushroom', 'bones'],
+      3: ['pillar', 'rune', 'bones']
+    };
+    const pDecor = decorPools[cycle] || ['rock'];
+    const decorCount = Math.floor(rand(8, 14));
+    for (let i = 0; i < decorCount; i++) {
+      const dx = rand(150, GAME_W - 100);
+      const dy = rand(150, GAME_H - 80);
+      if (Math.hypot(dx - 48, dy - (GAME_H / 2)) < 60 || Math.hypot(dx - stairsX, dy - stairsY) < 40) {
+        continue;
+      }
+      const dtype = pDecor[Math.floor(Math.random() * pDecor.length)] as any;
+      gr.decor.push({ id: nextId(), type: dtype, x: dx, y: dy, variant: Math.floor(rand(0, 3)) });
     }
-    for (let i = 0; i < 6; i++) {
-      gr.decor.push({ id: nextId(), type: 'mushroom', x: rand(80, GAME_W - 80), y: rand(130, GAME_H - 80), variant: Math.floor(rand(0, 2)) });
+
+    // Scatter coins and hearts
+    const coinCount = Math.floor(rand(2, 5));
+    for (let i = 0; i < coinCount; i++) {
+      spawnDrop(gr, { id: nextId(), type: 'coin', x: rand(150, GAME_W - 120), y: rand(150, GAME_H - 100), bob: Math.random() * 6.28, taken: false });
     }
-    for (let i = 0; i < 4; i++) {
-      gr.decor.push({ id: nextId(), type: 'rock', x: rand(70, GAME_W - 70), y: rand(130, GAME_H - 70), variant: Math.floor(rand(0, 2)) });
+    if (Math.random() < 0.35) {
+      spawnDrop(gr, { id: nextId(), type: 'heart', x: rand(200, GAME_W - 200), y: rand(200, GAME_H - 120), bob: 0, taken: false });
     }
 
   } else if (zone === 2) {

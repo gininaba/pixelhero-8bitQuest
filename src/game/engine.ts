@@ -7,6 +7,7 @@ import { audio } from './audio';
 export function resetWorld(gr: GameState, keepPerks = false) {
   const prevPlayer = gr.player;
   gr.zone = 0;
+  gr.dungeonFloor = 0;
   gr.time = 0;
   gr.frame = 0;
   gr.kills = 0;
@@ -29,6 +30,7 @@ export function resetWorld(gr: GameState, keepPerks = false) {
   gr.waveTimer = 0;
   gr.waveCleared = false;
   gr.waveEnemiesLeft = 0;
+  gr.lightningStrike = null;
 
   gr.player = {
     x: GAME_W / 2, y: GAME_H / 2 + 40,
@@ -44,7 +46,9 @@ export function resetWorld(gr: GameState, keepPerks = false) {
     speedBonus: 0,
     dashCdMax: 44,
     hasFireball: false,
-    hasVampire: false
+    hasVampire: false,
+    hasShield: false,
+    hasLightning: false
   };
 
   // NG+ carries over perks & upgrades
@@ -54,6 +58,8 @@ export function resetWorld(gr: GameState, keepPerks = false) {
     gr.player.dashCdMax = prevPlayer.dashCdMax;
     gr.player.hasFireball = prevPlayer.hasFireball;
     gr.player.hasVampire = prevPlayer.hasVampire;
+    gr.player.hasShield = prevPlayer.hasShield;
+    gr.player.hasLightning = prevPlayer.hasLightning;
     gr.player.maxHp = prevPlayer.maxHp;
     gr.player.hp = gr.player.maxHp;
     gr.player.level = prevPlayer.level;
@@ -71,7 +77,31 @@ export function resetWorld(gr: GameState, keepPerks = false) {
 
 export function completeQuestProgress(gr: GameState, questId: string, amt = 1) {
   const q = gr.quests.find(x => x.id === questId);
-  if (!q || q.done) return;
+  if (!q) return;
+
+  if (q.done) {
+    // Infinite quest targets rollover
+    if (['floor', 'kills', 'coins', 'bosses'].includes(questId)) {
+      q.done = false;
+      q.progress = 0;
+      if (questId === 'floor') {
+        q.target += 10;
+        q.desc = `Descend to Floor ${q.target}`;
+      } else if (questId === 'kills') {
+        q.target += 25;
+        q.desc = `Defeat ${q.target} dungeon monsters`;
+      } else if (questId === 'coins') {
+        q.target += 50;
+        q.desc = `Gather ${q.target} total coins`;
+      } else if (questId === 'bosses') {
+        q.target += 3;
+        q.desc = `Defeat ${q.target} floor mini-bosses`;
+      }
+    } else {
+      return;
+    }
+  }
+
   q.progress = clamp(q.progress + amt, 0, q.target);
   if (q.progress >= q.target) {
     q.done = true;
@@ -216,6 +246,19 @@ export function tryInteract(gr: GameState, setDialog: any, setPhase: any) {
       audio.playSfx('click');
       return;
     }
+  } else if (gr.zone >= 1) {
+    // Interact with procedural Merchant NPC in dungeon/wastes/depths
+    const merchant = gr.decor.find(d => d.type === 'merchant');
+    if (merchant) {
+      const dx = pl.x - merchant.x;
+      const dy = pl.y - merchant.y;
+      if (Math.hypot(dx, dy) < 54) {
+        gr.phase = 'shop';
+        setPhase('shop');
+        audio.playSfx('click');
+        return;
+      }
+    }
   }
 }
 
@@ -264,97 +307,54 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
   pl.y += pl.vy;
 
   // ===== Auto-Travel Zone Transitions =====
-  // Zone 0 (Emberwick) → Zone 1 (Gloomwood): right edge
+  // Zone 0 (Emberwick) → Dungeon Floor 1: right edge
   if (gr.zone === 0 && pl.x > GAME_W - 27) {
     gr.zone = 1;
+    gr.dungeonFloor = 1;
     pl.x = 48;
     seedZone(gr, 1);
     audio.setZoneMusic(1);
-    spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'GLOOMWOOD', color: '#8cf7ab', life: 56, vy: -0.62 });
+    spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'DUNGEON FLOOR 1', color: '#ffea6a', life: 56, vy: -0.62 });
+    completeQuestProgress(gr, 'floor', 1);
   }
-  // Zone 1 (Gloomwood) → Zone 0 (Emberwick): left edge
-  else if (gr.zone === 1 && pl.x < 27) {
+  // Zone 1 (Dungeon Floor 1) → Zone 0 (Emberwick): left edge
+  else if (gr.zone === 1 && gr.dungeonFloor === 1 && pl.x < 27) {
     gr.zone = 0;
+    gr.dungeonFloor = 0;
     pl.x = GAME_W - 48;
     seedZone(gr, 0);
     audio.setZoneMusic(0);
     spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'EMBERWICK', color: '#8cf7ab', life: 56, vy: -0.62 });
   }
-  // Zone 1 (Gloomwood) → Zone 2 (Scorched Wastes): right edge, needs Rusted Key
-  else if (gr.zone === 1 && pl.x > GAME_W - 27) {
-    if (gr.hasKey) {
-      gr.zone = 2;
-      pl.x = 48;
-      seedZone(gr, 2);
-      audio.setZoneMusic(2);
-      spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'SCORCHED WASTES', color: '#ffb86a', life: 56, vy: -0.62 });
-    } else {
-      pl.x = GAME_W - 44;
-      pl.vx = -4;
-      spawnFloater(gr, { x: pl.x - 30, y: pl.y - 26, text: 'NEED KEY', color: '#ff6c6c', life: 56, vy: -0.62 });
-      burstParticles(gr, pl.x + 18, pl.y, 6, '#ff6c6c');
-      audio.playSfx('hurt');
-    }
-  }
-  // Zone 2 (Scorched Wastes) → Zone 1 (Gloomwood): left edge
-  else if (gr.zone === 2 && pl.x < 27) {
-    gr.zone = 1;
-    pl.x = GAME_W - 48;
-    seedZone(gr, 1);
-    audio.setZoneMusic(1);
-    spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'GLOOMWOOD', color: '#8cf7ab', life: 56, vy: -0.62 });
-  }
-  // Zone 2 (Scorched Wastes) → Zone 3 (Hollow Depth): right edge, needs Hollow Key
-  else if (gr.zone === 2 && pl.x > GAME_W - 27) {
-    if (gr.hasHollowKey) {
-      gr.zone = 3;
-      pl.x = 48;
-      seedZone(gr, 3);
-      audio.setZoneMusic(3);
-      spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'HOLLOW DEPTH', color: '#ff8f9d', life: 56, vy: -0.62 });
-    } else {
-      pl.x = GAME_W - 44;
-      pl.vx = -4;
-      spawnFloater(gr, { x: pl.x - 30, y: pl.y - 26, text: 'NEED HOLLOW KEY', color: '#ff6c6c', life: 56, vy: -0.62 });
-      burstParticles(gr, pl.x + 18, pl.y, 6, '#ff6c6c');
-      audio.playSfx('hurt');
-    }
-  }
-  // Zone 3 (Hollow Depth) → Zone 2 (Scorched Wastes): left edge
-  else if (gr.zone === 3 && pl.x < 27) {
-    gr.zone = 2;
-    pl.x = GAME_W - 48;
-    seedZone(gr, 2);
-    audio.setZoneMusic(2);
-    spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'SCORCHED WASTES', color: '#ffb86a', life: 56, vy: -0.62 });
-  }
-  // Zone 3 (Hollow Depth) → Zone 4 (Abyssal Sanctum): right edge, needs Sanctum Seal
-  else if (gr.zone === 3 && pl.x > GAME_W - 27) {
-    if (gr.hasSanctumSeal) {
-      gr.zone = 4;
-      pl.x = 48;
-      seedZone(gr, 4);
-      audio.setZoneMusic(4);
-      spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'ABYSSAL SANCTUM', color: '#d88fff', life: 56, vy: -0.62 });
-    } else {
-      pl.x = GAME_W - 44;
-      pl.vx = -4;
-      spawnFloater(gr, { x: pl.x - 30, y: pl.y - 26, text: 'NEED SANCTUM SEAL', color: '#ff6c6c', life: 56, vy: -0.62 });
-      burstParticles(gr, pl.x + 18, pl.y, 6, '#ff6c6c');
-      audio.playSfx('hurt');
-    }
-  }
-  // Zone 4 (Abyssal Sanctum) → Zone 3 (Hollow Depth): left edge
-  else if (gr.zone === 4 && pl.x < 27) {
-    gr.zone = 3;
-    pl.x = GAME_W - 48;
-    seedZone(gr, 3);
-    audio.setZoneMusic(3);
-    spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: 'HOLLOW DEPTH', color: '#ff8f9d', life: 56, vy: -0.62 });
-  }
 
   pl.x = clamp(pl.x, 26, GAME_W - 26);
   pl.y = clamp(pl.y, 118, GAME_H - 46);
+
+  // Exit/Descend check
+  if (gr.zone === 1) {
+    const stairs = gr.decor.find(d => d.type === 'stairs');
+    if (stairs) {
+      const d = dist(pl, stairs);
+      const allDead = gr.enemies.filter(e => e.hp > 0).length === 0;
+      if (d < 24) {
+        if (allDead) {
+          // Descend to next floor!
+          gr.dungeonFloor++;
+          pl.x = 48; // Spawn at left
+          seedZone(gr, 1);
+          audio.playSfx('levelup');
+          spawnFloater(gr, { x: pl.x, y: pl.y - 20, text: `DUNGEON FLOOR ${gr.dungeonFloor}`, color: '#ffea6a', life: 70, vy: -0.7 });
+          completeQuestProgress(gr, 'floor', 1); // Progress floor quest
+        } else {
+          // Stairs locked warning
+          if (gr.frame % 30 === 0) {
+            spawnFloater(gr, { x: stairs.x, y: stairs.y - 20, text: 'CLEAR ENEMIES', color: '#ff6262', life: 48, vy: -0.5 });
+            audio.playSfx('click');
+          }
+        }
+      }
+    }
+  }
 
   if (pl.attackCd > 0) pl.attackCd--;
   if (pl.attackActive > 0) pl.attackActive--;
@@ -584,33 +584,24 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
       gr.score += scoreTable[e.type] ?? 65;
       pl.coins += coinTable[e.type] ?? 1;
       spawnFloater(gr, { x: e.x, y: e.y - 8, text: `+${scoreTable[e.type] ?? 65}`, color: '#aaffc9', life: 56, vy: -0.62 });
-
-      // Quest completions
-      if (e.type === 'slime') completeQuestProgress(gr, 'slimes', 1);
-      if (e.type === 'scorpion') completeQuestProgress(gr, 'scorpions', 1);
-
-      // Depth kills quest (zone 3 enemies)
-      if (gr.zone === 3) completeQuestProgress(gr, 'depthkills', 1);
-
-      // Boss-specific drops and quest completions
-      if (e.type === 'sandwyrm') {
-        completeQuestProgress(gr, 'sandwyrm', 1);
-        gr.sandwyrmDefeated = true;
-        // Drop Hollow Key
-        spawnDrop(gr, { id: nextId(), type: 'hollow_key', x: e.x, y: e.y, bob: 0, taken: false });
-        spawnFloater(gr, { x: e.x, y: e.y - 34, text: 'HOLLOW KEY!', color: '#7aefff', life: 72, vy: -0.7 });
+      
+      // Infinite dungeon quests progress
+      completeQuestProgress(gr, 'kills', 1);
+      if (isBoss) {
+        completeQuestProgress(gr, 'bosses', 1);
+        
+        // Spawn Merchant next to exit portal in dungeon
+        const spawnObj = gr.decor.find(d => d.type === 'stairs') ?? { x: e.x, y: e.y };
+        gr.decor.push({ id: nextId(), type: 'merchant', x: spawnObj.x - 52, y: spawnObj.y, variant: 0 });
+        spawnFloater(gr, { x: spawnObj.x - 52, y: spawnObj.y - 20, text: 'MERCHANT ARRIVED', color: '#ffec9a', life: 72, vy: -0.6 });
       }
-      if (e.type === 'boss') {
-        completeQuestProgress(gr, 'boss', 1);
-        gr.grukDefeated = true;
-        // Drop Sanctum Seal
-        spawnDrop(gr, { id: nextId(), type: 'sanctum_seal', x: e.x, y: e.y, bob: 0, taken: false });
-        spawnFloater(gr, { x: e.x, y: e.y - 34, text: 'SANCTUM SEAL!', color: '#d88fff', life: 72, vy: -0.7 });
-      }
+
       if (e.type === 'shadow_warden' && !e.isClone) {
-        completeQuestProgress(gr, 'shadow_warden', 1);
-        gr.phase = 'victory';
-        setPhase('victory');
+        if (gr.zone !== 1) {
+          completeQuestProgress(gr, 'shadow_warden', 1);
+          gr.phase = 'victory';
+          setPhase('victory');
+        }
       }
 
       // Clone death: just remove, no drops
@@ -652,6 +643,7 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
         spawnFloater(gr, { x: drop.x, y: drop.y - 10, text: '+1¢', color: '#ffe76a', life: 56, vy: -0.62 });
         burstParticles(gr, drop.x, drop.y, 6, '#ffd34d');
         audio.playSfx('coin');
+        completeQuestProgress(gr, 'coins', 1);
       }
       if (drop.type === 'herb') {
         completeQuestProgress(gr, 'herbs', 1);
@@ -700,7 +692,7 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
     gr.phase = 'levelup';
     setPhase('levelup');
 
-    const perkPool = ['sword', 'speed', 'hp', 'fireball', 'vampire'];
+    const perkPool = ['sword', 'speed', 'hp', 'fireball', 'vampire', 'lightning', 'shield'];
     const chosen: string[] = [];
     while (chosen.length < 3) {
       const p = perkPool[Math.floor(Math.random() * perkPool.length)];
@@ -796,6 +788,54 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
     f.vy *= 0.985;
     f.life--;
     if (f.life <= 0) f.active = false;
+  }
+
+  // ===== Update skills / spell triggers =====
+  if (gr.lightningStrike && gr.lightningStrike.life > 0) {
+    gr.lightningStrike.life--;
+  }
+
+  if (pl.hasLightning && gr.frame % 72 === 0) {
+    const nearby = gr.enemies.filter(e => e.hp > 0 && dist(e, pl) < 240);
+    if (nearby.length > 0) {
+      const target = nearby[Math.floor(Math.random() * nearby.length)];
+      const dmg = 38 + Math.floor(pl.level * 2.5);
+      target.hp -= dmg;
+      target.hitFlash = 7;
+      target.stun = 14;
+      const ang = Math.atan2(target.y - pl.y, target.x - pl.x);
+      target.vx += Math.cos(ang) * 3;
+      target.vy += Math.sin(ang) * 3;
+      audio.playSfx('hit');
+      burstParticles(gr, target.x, target.y - 8, 14, '#9dfffe');
+      spawnFloater(gr, { x: target.x, y: target.y - 18, text: `LIGHTNING ${dmg}`, color: '#9dfffe', life: 48, vy: -0.6 });
+      gr.lightningStrike = { x: target.x, y: target.y, life: 6 };
+      gr.shake = Math.max(gr.shake, 3.5);
+    }
+  }
+
+  if (pl.hasShield) {
+    const angle = gr.frame * 0.08;
+    const sx = pl.x + Math.cos(angle) * 38;
+    const sy = pl.y - 6 + Math.sin(angle) * 38;
+    for (const e of gr.enemies) {
+      if (e.hp <= 0) continue;
+      if (e.type === 'sandwyrm' && e.burrowed) continue;
+      if (Math.hypot(e.x - sx, e.y - sy) < 26) {
+        if (e.stun <= 0) {
+          const dmg = 12 + Math.floor(pl.level * 1.2);
+          e.hp -= dmg;
+          e.hitFlash = 6;
+          e.stun = 10;
+          const kAng = Math.atan2(e.y - sy, e.x - sx);
+          e.vx += Math.cos(kAng) * 3.5;
+          e.vy += Math.sin(kAng) * 3.5;
+          burstParticles(gr, e.x, e.y - 8, 6, '#5cbfff');
+          spawnFloater(gr, { x: e.x, y: e.y - 18, text: String(dmg), color: '#a6e3ff', life: 40, vy: -0.5 });
+          audio.playSfx('hit');
+        }
+      }
+    }
   }
 
   // ===== Camera Tracking =====

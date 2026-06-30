@@ -18,8 +18,14 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
 ## Features
 
 - **Action RPG Combat**: Real-time hack-and-slash combat with dashing, attacking, invincibility frames, and hit-stun mechanics.
+- **Infinite Dungeon Mode**: Descend into a procedurally seeded dungeon with infinite floors. Features automatic difficulty scaling, boss encounters every 5 floors, and infinitely looping quests with scaling targets.
+- **Procedural Merchant NPC**: Spawns next to the stairs portal on every boss floor immediately after the boss is defeated, allowing full shop interactions and upgrade purchases deep in the dungeon.
+- **Skill Powerup Perks**: Unlocks powerful spells during leveling:
+  - **Flame Blessing**: Launches piercing fireballs with sword attacks.
+  - **Thunder Spell**: Calls down zigzag lightning bolts to strike and stun random nearby enemies, accompanied by dynamic screen flashes.
+  - **Shield Aura**: Summons a spinning blue energy sphere orbiting the player that damages and knocks back contacting enemies.
 - **Dynamic Entities**: 9 unique enemy types including slimes, bats, goblins, scorpions, wraiths, skeletal knights, and 3 distinct bosses (Gruk, Sand Wyrm, Shadow Warden) with custom AI.
-- **Quest System**: Talk to NPCs and complete a 4-phase linear progression of 11 quests.
+- **Quest System**: A structured quest system featuring linear story progression in standard zones and infinitely scaling auto-rollover quests in the infinite dungeon.
 - **Expansive Zones**: Travel between 5 distinct environments:
   - Emberwick (Safe Zone)
   - Gloomwood
@@ -118,4 +124,3 @@ We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-

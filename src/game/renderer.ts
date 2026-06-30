@@ -1,5 +1,5 @@
 import { GameState, Player, Enemy, ZoneId, Decor } from './types';
-import { GAME_W, GAME_H, TILE, ZONES } from './config';
+import { GAME_W, GAME_H, TILE, ZONES, getFloorTheme } from './config';
 import { clamp } from './utils';
 
 let cachedVignette: CanvasGradient | null = null;
@@ -13,22 +13,20 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
     cachedVignette.addColorStop(0, 'rgba(0,0,0,0)');
     cachedVignette.addColorStop(1, 'rgba(0,0,0,0.36)');
   }
-  if (!cachedLinearGradients[gr.zone]) {
-    const zone = ZONES[gr.zone] ?? ZONES[0];
+  const activeTheme = gr.zone === 0 ? ZONES[0] : getFloorTheme(gr.dungeonFloor);
+  if (!cachedLinearGradients[activeTheme.id]) {
     const grad = ctx.createLinearGradient(0, 0, 0, GAME_H);
-    grad.addColorStop(0, zone.colorTop);
-    grad.addColorStop(1, zone.colorBot);
-    cachedLinearGradients[gr.zone] = grad;
+    grad.addColorStop(0, activeTheme.colorTop);
+    grad.addColorStop(1, activeTheme.colorBot);
+    cachedLinearGradients[activeTheme.id] = grad;
   }
 
   const shakeX = gr.shake > 0.4 ? (Math.random() - 0.5) * gr.shake * 2.4 : 0;
   const shakeY = gr.shake > 0.4 ? (Math.random() - 0.5) * gr.shake * 1.6 : 0;
   ctx.save();
   ctx.translate(Math.round(shakeX), Math.round(shakeY));
-
-  const zone = ZONES[gr.zone] ?? ZONES[0];
   
-  ctx.fillStyle = cachedLinearGradients[gr.zone];
+  ctx.fillStyle = cachedLinearGradients[activeTheme.id];
   ctx.fillRect(0, 0, GAME_W, GAME_H);
 
   ctx.globalAlpha = 0.07;
@@ -38,12 +36,12 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
   }
   ctx.globalAlpha = 1;
 
-  ctx.fillStyle = zone.floor;
+  ctx.fillStyle = activeTheme.floor;
   ctx.fillRect(0, 110, GAME_W, GAME_H - 110);
 
   // Grid overlay
   ctx.globalAlpha = 0.11;
-  ctx.strokeStyle = gr.zone === 2 ? '#b0a070' : gr.zone === 4 ? '#6644aa' : '#b7e3b0';
+  ctx.strokeStyle = activeTheme.id === 2 ? '#b0a070' : activeTheme.id === 4 ? '#6644aa' : '#b7e3b0';
   ctx.lineWidth = 1;
   for (let gx = 0; gx < GAME_W; gx += TILE * 2) {
     ctx.beginPath();
@@ -59,12 +57,13 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
   }
   ctx.globalAlpha = 1;
 
-  drawZoneDecor(ctx, gr.zone, gr.frame);
+  drawZoneDecor(ctx, activeTheme.id, gr.frame);
 
   // Draw ground details
   if (gr.decor) {
+    const isUnlocked = gr.enemies.filter(e => e.hp > 0).length === 0;
     for (const dec of gr.decor) {
-      drawDecorItem(ctx, dec, gr.zone);
+      drawDecorItem(ctx, dec, activeTheme.id, isUnlocked, gr.frame);
     }
   }
 
@@ -87,59 +86,13 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
     ctx.restore();
   };
 
-  const lockedEdge = (x: number, _label: string, _keyName: string) => {
-    ctx.save();
-    ctx.globalAlpha = 0.22;
-    ctx.fillStyle = '#666';
-    ctx.fillRect(x, 118, 16, GAME_H - 118);
-    ctx.font = '7px "Press Start 2P"';
-    ctx.fillStyle = '#adadad';
-    ctx.textAlign = 'center';
-    ctx.fillText('LOCK', x + 8, 147);
-    ctx.fillText('ED', x + 8, 160);
-    ctx.globalAlpha = 1;
-    ctx.restore();
-  };
 
-  const unlockedEdge = (x: number, label: string, color: string) => {
-    ctx.save();
-    ctx.globalAlpha = 0.5 + Math.sin(gr.frame * 0.13) * 0.15;
-    ctx.fillStyle = color;
-    ctx.fillRect(x, 118, 16, GAME_H - 118);
-    ctx.font = '8px "Press Start 2P"';
-    ctx.fillStyle = '#ffd3df';
-    ctx.textAlign = 'center';
-    ctx.fillText(label, x + 8, 156);
-    ctx.globalAlpha = 1;
-    ctx.restore();
-  };
   
   // Zone-specific edge indicators
   if (gr.zone === 0) {
-    edgeGlow(GAME_W - 14, 'WOOD');
-  } else if (gr.zone === 1) {
+    edgeGlow(GAME_W - 14, 'DUNGEON');
+  } else if (gr.zone === 1 && gr.dungeonFloor === 1) {
     edgeGlow(18, 'TOWN');
-    if (gr.hasKey) {
-      unlockedEdge(GAME_W - 24, 'WASTE', '#ffb86a');
-    } else {
-      lockedEdge(GAME_W - 24, 'WASTE', 'KEY');
-    }
-  } else if (gr.zone === 2) {
-    edgeGlow(18, 'WOOD', '#8cf7ab');
-    if (gr.hasHollowKey) {
-      unlockedEdge(GAME_W - 24, 'DEPTH', '#ff8f9d');
-    } else {
-      lockedEdge(GAME_W - 24, 'DEPTH', 'KEY');
-    }
-  } else if (gr.zone === 3) {
-    edgeGlow(18, 'WASTE', '#ffb86a');
-    if (gr.hasSanctumSeal) {
-      unlockedEdge(GAME_W - 24, 'ABYSS', '#d88fff');
-    } else {
-      lockedEdge(GAME_W - 24, 'ABYSS', 'SEAL');
-    }
-  } else if (gr.zone === 4) {
-    edgeGlow(18, 'DEPTH', '#ff8f9d');
   }
 
   // Draw NPCs in town
@@ -244,6 +197,39 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
     if (pl.attackActive > 0) {
       drawSlash(ctx, pl, pl.attackActive);
     }
+
+    if (pl.hasShield) {
+      const angle = gr.frame * 0.08;
+      const sx = pl.x + Math.cos(angle) * 38;
+      const sy = pl.y - 6 + Math.sin(angle) * 38;
+      
+      ctx.save();
+      ctx.translate(sx, sy);
+      
+      // Outer glow ring
+      ctx.globalAlpha = 0.45 + Math.sin(gr.frame * 0.16) * 0.15;
+      ctx.strokeStyle = '#5cbfff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Inner core
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = '#a6e3ff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bright center
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-1.5, -1.5, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
   }
 
   // Draw Projectiles
@@ -295,6 +281,56 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
   }
   ctx.globalAlpha = 1;
 
+  // Draw Lightning Strike
+  if (gr.lightningStrike && gr.lightningStrike.life > 0) {
+    const lx = gr.lightningStrike.x;
+    const ly = gr.lightningStrike.y - 8;
+    
+    const points: { x: number; y: number }[] = [{ x: lx, y: 0 }];
+    const segments = 6;
+    const stepY = ly / segments;
+    for (let i = 1; i < segments; i++) {
+      const offset = (Math.random() - 0.5) * 26;
+      points.push({ x: lx + offset, y: stepY * i });
+    }
+    points.push({ x: lx, y: ly });
+    
+    ctx.save();
+    
+    if (gr.lightningStrike.life >= 4) {
+      ctx.fillStyle = 'rgba(157, 255, 254, 0.15)';
+      ctx.fillRect(0, 0, GAME_W, GAME_H);
+    }
+    
+    ctx.strokeStyle = '#9dfffe';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.stroke();
+    
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.stroke();
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 10, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+  }
+
   // Draw Floaters
   ctx.textAlign = 'center';
   ctx.font = '12px "Press Start 2P"';
@@ -311,7 +347,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
   ctx.textAlign = 'left';
 
   // Draw lighting mask in dark zones (1=Gloomwood, 3=Hollow Depth, 4=Abyssal Sanctum)
-  if (gr.zone === 1 || gr.zone === 3 || gr.zone === 4) {
+  if (activeTheme.id === 1 || activeTheme.id === 3 || activeTheme.id === 4) {
     drawLightingEngine(ctx, gr);
   }
 
@@ -342,7 +378,7 @@ function isBigEnemy(type: string): boolean {
   return type === 'boss' || type === 'sandwyrm' || type === 'shadow_warden';
 }
 
-function drawDecorItem(ctx: CanvasRenderingContext2D, dec: Decor, zone: number) {
+function drawDecorItem(ctx: CanvasRenderingContext2D, dec: Decor, zone: number, isUnlocked = false, frame = 0) {
   ctx.save();
   ctx.translate(dec.x, dec.y);
 
@@ -452,6 +488,43 @@ function drawDecorItem(ctx: CanvasRenderingContext2D, dec: Decor, zone: number) 
     ctx.moveTo(4, -4); ctx.lineTo(-4, 4);
     ctx.stroke();
     ctx.globalAlpha = 1;
+  } else if (dec.type === 'stairs') {
+    if (isUnlocked) {
+      // Unlocked: glowing portal
+      ctx.globalAlpha = 0.55 + Math.sin(frame * 0.16) * 0.22;
+      
+      // Draw outer circle
+      ctx.strokeStyle = '#ffd75b';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, 16 + Math.sin(frame * 0.08) * 3, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw inner core
+      ctx.fillStyle = '#fff57a';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw center core
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Locked: stone hatch with iron bars
+      ctx.fillStyle = '#3c3d3e';
+      ctx.fillRect(-12, -12, 24, 24);
+      ctx.fillStyle = '#222324';
+      ctx.fillRect(-10, -10, 20, 20);
+      
+      // Iron bars
+      ctx.fillStyle = '#7c7d7e';
+      ctx.fillRect(-8, -2, 16, 4);
+      ctx.fillRect(-2, -8, 4, 16);
+    }
+  } else if (dec.type === 'merchant') {
+    drawMerchant(ctx, 0, 0, frame);
   }
 
   ctx.restore();
@@ -515,8 +588,9 @@ function drawLightingEngine(ctx: CanvasRenderingContext2D, gr: GameState) {
 
   // Ambient darkness varies by zone
   lightCtx.clearRect(0, 0, GAME_W, GAME_H);
-  const darkness = gr.zone === 1 ? 'rgba(5, 7, 18, 0.73)'
-    : gr.zone === 4 ? 'rgba(8, 4, 18, 0.88)'
+  const activeTheme = gr.zone === 0 ? ZONES[0] : getFloorTheme(gr.dungeonFloor);
+  const darkness = activeTheme.id === 1 ? 'rgba(5, 7, 18, 0.73)'
+    : activeTheme.id === 4 ? 'rgba(8, 4, 18, 0.88)'
     : 'rgba(18, 5, 24, 0.82)';
   lightCtx.fillStyle = darkness;
   lightCtx.fillRect(0, 0, GAME_W, GAME_H);
@@ -553,6 +627,19 @@ function drawLightingEngine(ctx: CanvasRenderingContext2D, gr: GameState) {
         lights.push({ x: p.x, y: p.y, r: p.type === 'fireball' ? 66 : 42 });
       }
     }
+  }
+
+  // Shield light source
+  if (gr.player && gr.player.hasShield) {
+    const angle = gr.frame * 0.08;
+    const sx = gr.player.x + Math.cos(angle) * 38;
+    const sy = gr.player.y - 6 + Math.sin(angle) * 38;
+    lights.push({ x: sx, y: sy, r: 52 });
+  }
+
+  // Lightning light source
+  if (gr.lightningStrike && gr.lightningStrike.life > 0) {
+    lights.push({ x: gr.lightningStrike.x, y: gr.lightningStrike.y - 8, r: 280 });
   }
 
   for (const lt of lights) {
@@ -609,6 +696,33 @@ function drawLightingEngine(ctx: CanvasRenderingContext2D, gr: GameState) {
       ctx.fillStyle = grad;
       ctx.beginPath(); ctx.arc(d.x, d.y, 36, 0, Math.PI * 2); ctx.fill();
     }
+  }
+
+  // Shield screen blend glow
+  if (gr.player && gr.player.hasShield) {
+    const angle = gr.frame * 0.08;
+    const sx = gr.player.x + Math.cos(angle) * 38;
+    const sy = gr.player.y - 6 + Math.sin(angle) * 38;
+    const grad = ctx.createRadialGradient(sx, sy, 2, sx, sy, 26);
+    grad.addColorStop(0, 'rgba(92, 191, 255, 0.44)');
+    grad.addColorStop(1, 'rgba(92, 191, 255, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 26, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Lightning screen blend glow
+  if (gr.lightningStrike && gr.lightningStrike.life > 0) {
+    const lx = gr.lightningStrike.x;
+    const ly = gr.lightningStrike.y - 8;
+    const grad = ctx.createRadialGradient(lx, ly, 2, lx, ly, 75);
+    grad.addColorStop(0, 'rgba(157, 255, 254, 0.72)');
+    grad.addColorStop(1, 'rgba(92, 191, 255, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 75, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   ctx.restore();

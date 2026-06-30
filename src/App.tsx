@@ -120,7 +120,9 @@ export default function App() {
     waveCleared: false,
     waveEnemiesLeft: 0,
     ngPlus: false,
-    ngPlusLevel: 0
+    ngPlusLevel: 0,
+    dungeonFloor: 0,
+    lightningStrike: null
   });
 
   const keysRef = useRef<Record<string, boolean>>({});
@@ -461,6 +463,10 @@ export default function App() {
       pl.hasFireball = true;
     } else if (perkId === 'vampire') {
       pl.hasVampire = true;
+    } else if (perkId === 'lightning') {
+      pl.hasLightning = true;
+    } else if (perkId === 'shield') {
+      pl.hasShield = true;
     }
 
     pl.hp = pl.maxHp;

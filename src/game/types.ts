@@ -24,6 +24,8 @@ export interface Player {
   dashCdMax: number;
   hasFireball: boolean;
   hasVampire: boolean;
+  hasShield: boolean;
+  hasLightning: boolean;
 }
 
 export interface Enemy {
@@ -63,7 +65,7 @@ export interface Projectile {
 
 export interface Decor {
   id: number;
-  type: 'grass' | 'flower' | 'rock' | 'mushroom' | 'cactus' | 'bones' | 'pillar' | 'rune';
+  type: 'grass' | 'flower' | 'rock' | 'mushroom' | 'cactus' | 'bones' | 'pillar' | 'rune' | 'stairs' | 'merchant';
   x: number; y: number;
   variant: number;
 }
@@ -150,4 +152,7 @@ export interface GameState {
   // New Game+
   ngPlus: boolean;
   ngPlusLevel: number;
+  // Infinite Dungeon
+  dungeonFloor: number;
+  lightningStrike: { x: number; y: number; life: number } | null;
 }

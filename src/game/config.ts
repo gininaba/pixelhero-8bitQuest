@@ -13,22 +13,17 @@ export const ZONES: { id: ZoneId; name: string; colorTop: string; colorBot: stri
 ];
 
 export const getInitialQuests = (): Quest[] => [
-  // Phase 1 — Emberwick & Gloomwood
-  { id:'talk', title:'TALK TO ELDER', desc:'Find Elder Mael in Emberwick', target:1, progress:0, done:false, zoneHint:0 },
-  { id:'slimes', title:'SLIME MENACE', desc:'Slay forest slimes', target:7, progress:0, done:false, zoneHint:1 },
-  { id:'herbs', title:'MOON HERBS', desc:'Gather glowing herbs', target:4, progress:0, done:false, zoneHint:1 },
-  { id:'key', title:'RUSTED KEY', desc:'Find the hollow key', target:1, progress:0, done:false, zoneHint:1 },
-  // Phase 2 — Scorched Wastes
-  { id:'scorpions', title:'SCORCHED EARTH', desc:'Kill scorpions in the wastes', target:6, progress:0, done:false, zoneHint:2 },
-  { id:'relics', title:'LOST RELICS', desc:'Gather ancient relics', target:3, progress:0, done:false, zoneHint:2 },
-  { id:'sandwyrm', title:'SAND WYRM', desc:'Defeat the Sand Wyrm', target:1, progress:0, done:false, zoneHint:2 },
-  // Phase 3 — Hollow Depth
-  { id:'depthkills', title:'CLEAR THE DEPTHS', desc:'Kill enemies in the deep', target:10, progress:0, done:false, zoneHint:3 },
-  { id:'boss', title:'GOBLIN CHIEF', desc:'Defeat Gruk the Rot-Tusk', target:1, progress:0, done:false, zoneHint:3 },
-  // Phase 4 — Abyssal Sanctum
-  { id:'waves', title:'SHADOW LEGION', desc:'Survive the shadow waves', target:3, progress:0, done:false, zoneHint:4 },
-  { id:'shadow_warden', title:'SHADOW WARDEN', desc:'Defeat the Shadow Warden', target:1, progress:0, done:false, zoneHint:4 },
+  { id:'floor', title:'FLOOR RUNNER', desc:'Descend deeper into the dungeon', target:10, progress:0, done:false, zoneHint:'any' },
+  { id:'kills', title:'MONSTER SLAYER', desc:'Defeat dungeon monsters', target:25, progress:0, done:false, zoneHint:'any' },
+  { id:'coins', title:'GOLD COLLECTOR', desc:'Gather coins from fallen foes', target:50, progress:0, done:false, zoneHint:'any' },
+  { id:'bosses', title:'BOSS CRUSHER', desc:'Defeat floor mini-bosses', target:3, progress:0, done:false, zoneHint:'any' },
 ];
+
+export function getFloorTheme(floor: number) {
+  if (floor === 0) return ZONES[0];
+  const cycle = Math.floor((floor - 1) / 3) % 4;
+  return ZONES[cycle + 1];
+}
 
 export const ENEMY_STATS: Record<string, { hp: number; dmg: number; spd: number; attackCd: number }> = {
   slime:          { hp: 30,  dmg: 8,  spd: 0.88, attackCd: 68 },
@@ -70,7 +65,9 @@ export const ALL_PERKS: Perk[] = [
   { id: 'speed', name: 'SWIFT FOOT', desc: '+15% Move Speed and -15% Dash Cooldown' },
   { id: 'hp', name: 'GIANT BLOOD', desc: 'Gain +25 Max HP and restore health to full' },
   { id: 'fireball', name: 'FLAME BLESSING', desc: 'Sword attacks launch piercing fireballs' },
-  { id: 'vampire', name: 'SOUL EATER', desc: 'Defeated enemies restore +3 HP' }
+  { id: 'vampire', name: 'SOUL EATER', desc: 'Defeated enemies restore +3 HP' },
+  { id: 'lightning', name: 'THUNDER SPELL', desc: 'Call down lightning bolts to strike and stun random nearby enemies' },
+  { id: 'shield', name: 'SHIELD AURA', desc: 'Summon a spinning orbital shield that damages any enemy it contacts' }
 ];
 
 // Wave definitions for zone 4 (Abyssal Sanctum)
