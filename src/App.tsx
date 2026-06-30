@@ -7,6 +7,84 @@ import { audio } from './game/audio';
 import { clamp } from './game/utils';
 
 
+// Retro Pixel-Art SVG Icons
+const QuestIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M3 2h10v12H3z" fill="#1b241e" stroke="currentColor" strokeWidth="1" />
+    <path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" strokeWidth="1" />
+    <path d="M2 1h12v1H2zm0 13h12v1H2z" fill="currentColor" />
+  </svg>
+);
+
+const MapIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" style={{ shapeRendering: 'crispEdges' }}>
+    <rect x="2" y="2" width="12" height="12" fill="#0f191d" stroke="currentColor" />
+    <path d="M5 2v12M11 2v12" stroke="currentColor" strokeDasharray="1 1" />
+    <path d="M8 5l2 3H6z" fill="#ff5a5a" />
+    <path d="M8 11l-2-3h4z" fill="#7ea6aa" />
+  </svg>
+);
+
+const StatsIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M3 2h10v4c0 4-5 7-5 7s-5-3-5-7V2z" fill="#1e131d" stroke="currentColor" />
+    <path d="M8 4v5M6 6h4" stroke="currentColor" />
+  </svg>
+);
+
+const HofIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M2 11h12v2H2z" fill="currentColor" />
+    <path d="M2 5l3 3 3-4 3 4 3-4v6H2z" fill="#201a10" stroke="currentColor" />
+    <rect x="4" y="4" width="2" height="2" fill="#ff5a5a" />
+    <rect x="10" y="4" width="2" height="2" fill="#5cbfff" />
+  </svg>
+);
+
+const SwordIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M7 7l5-5 2 2-5 5z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />
+    <path d="M9 5l3-3 1 1-3 3z" fill="#ffffff" />
+    <path d="M5 8l3 3M4 9l3 3" stroke="#f59e0b" strokeWidth="1" />
+    <path d="M3 11l2 2" stroke="#78350f" strokeWidth="1.5" />
+    <rect x="2" y="13" width="1" height="1" fill="#ef4444" />
+  </svg>
+);
+
+const SpeedIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M10 1H6L3 8h4v7l6-8H8z" fill="#facc15" stroke="#ca8a04" strokeWidth="1" />
+    <path d="M9 2H7L4.5 8H8v5l4.5-6H8z" fill="#fef08a" />
+  </svg>
+);
+
+const HeartIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M2 3h3v1H2zm7 0h3v1H9zm-8 1h14v3H1zm1 3h12v1H2zm1 1h10v1H3zm1 1h8v1H4zm1 1h6v1H5zm1 1h4v1H6zm1 1h2v1H7z" fill="#ef4444" />
+    <path d="M2 2h3v1H2zm7 0h3v1H9zM1 3h1v1H1zm5 0h1v1H6zm2 0h1v1H8zm5 0h1v1H13zM0 4h1v3H0zm15 0h1v3H15zM1 7h1v1H1zm13 0h1v1H13zM2 8h1v1H2zm11 0h1v1H13zM3 9h1v1H3zm9 0h1v1H12zM4 10h1v1H4zm7 0h1v1H11zM5 11h1v1H5zm5 0h1v1H10zM6 12h1v1H6zm3 0h1v1H9zM7 13h2v1H7z" fill="#450a0a" />
+    <rect x="3" y="4" width="2" height="2" fill="#ffffff" />
+  </svg>
+);
+
+const FireballIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M8 1c0 0-4 3-4 6a4 4 0 008 0c0-3-4-6-4-6z" fill="#f97316" stroke="#c2410c" strokeWidth="1" />
+    <path d="M8 4c0 0-2 2-2 4a2 2 0 004 0c0-2-2-4-2-4z" fill="#eab308" />
+    <path d="M8 6c0 0-1 1-1 2a1 1 0 002 0c0-1-1-2-1-2z" fill="#ffffff" />
+  </svg>
+);
+
+const SkullIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" style={{ shapeRendering: 'crispEdges' }}>
+    <path d="M3 5v5h1v2h2v1h4v-1h2v-2h1V5c0-3-3-4-5-4S3 2 3 5z" fill="#e2e8f0" stroke="#475569" strokeWidth="1" />
+    <rect x="5" y="5" width="2" height="2" fill="#bd52ff" />
+    <rect x="9" y="5" width="2" height="2" fill="#bd52ff" />
+    <rect x="7" y="8" width="2" height="1" fill="#475569" />
+    <path d="M5 10h1v1H5zm2 0h1v1H7zm2 0h1v1H9zm2 0h1v1H11z" fill="#ffffff" />
+  </svg>
+);
+
+
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -617,8 +695,18 @@ export default function App() {
                 <span className="text-[#8fffb7]">¢ {g.player?.coins ?? 0}</span>
                 <span className="text-[#ff9ab0]">LV {g.player?.level ?? 1}</span>
                 <span className="text-[#9fdfff]">{ZONES[g.zone]?.name}</span>
-                {g.player?.hasFireball && <span className="text-[#ffa043] animate-pulse text-[10px] font-bold tracking-widest">FIRE</span>}
-                {g.player?.hasVampire && <span className="text-[#bd52ff] animate-pulse text-[10px] font-bold tracking-widest">VAMP</span>}
+                {g.player?.hasFireball && (
+                  <span className="inline-flex items-center gap-1 text-[#ffa043] animate-pulse text-[10px] font-bold tracking-widest">
+                    <FireballIcon className="w-3.5 h-3.5 shrink-0" />
+                    FIRE
+                  </span>
+                )}
+                {g.player?.hasVampire && (
+                  <span className="inline-flex items-center gap-1 text-[#bd52ff] animate-pulse text-[10px] font-bold tracking-widest">
+                    <SkullIcon className="w-3.5 h-3.5 shrink-0" />
+                    VAMP
+                  </span>
+                )}
                 <span className="text-[#d5d6c8] ml-auto">KILLS {g.kills}</span>
               </div>
             </div>
@@ -1049,24 +1137,24 @@ export default function App() {
                     const pData = ALL_PERKS.find(p => p.id === perkId);
                     if (!pData) return null;
 
-                    let icon = "ATK";
+                    let icon: React.ReactNode = <SwordIcon className="w-10 h-10" />;
                     let color = "border-[#db5a6b] text-[#ffa3af] bg-[#201014]";
                     let hoverGlow = "hover:shadow-[0_0_20px_rgba(219,90,107,0.3)]";
 
                     if (perkId === 'speed') {
-                      icon = "SPD";
+                      icon = <SpeedIcon className="w-10 h-10" />;
                       color = "border-[#5cbfff] text-[#bce7ff] bg-[#101824]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(92,191,255,0.3)]";
                     } else if (perkId === 'hp') {
-                      icon = "HP";
+                      icon = <HeartIcon className="w-10 h-10" />;
                       color = "border-[#52df97] text-[#c0ffd8] bg-[#0c2016]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(82,223,151,0.3)]";
                     } else if (perkId === 'fireball') {
-                      icon = "FIRE";
+                      icon = <FireballIcon className="w-10 h-10" />;
                       color = "border-[#ffa043] text-[#ffe3b8] bg-[#241710]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(255,160,67,0.3)]";
                     } else if (perkId === 'vampire') {
-                      icon = "VAMP";
+                      icon = <SkullIcon className="w-10 h-10" />;
                       color = "border-[#bd52ff] text-[#e8bdff] bg-[#1b1024]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(189,82,255,0.3)]";
                     }
@@ -1077,7 +1165,7 @@ export default function App() {
                         onClick={() => selectPerk(perkId)}
                         className={`flex flex-col items-center justify-between p-4 rounded-xl border-[2.5px] text-center transition-all cursor-pointer duration-200 ${color} ${hoverGlow} hover:-translate-y-1`}
                       >
-                        <div className="text-[28px] mb-2">{icon}</div>
+                        <div className="flex justify-center mb-2">{icon}</div>
                         <div className="pixelfont text-[10px] font-bold tracking-wider">{pData.name}</div>
                         <div className="vtt text-[16px] text-[#cbdad0] leading-snug mt-2.5 flex-grow">{pData.desc}</div>
                         <div className="mt-3.5 pixelfont text-[8px] text-[#ffe76b] border border-[#ffec94]/30 px-2.5 py-1 rounded bg-[#ffdf6b]/5 shrink-0">
@@ -1134,7 +1222,13 @@ export default function App() {
                     : 'text-[#7ea6aa] hover:bg-[#0f171c]/40 hover:text-white'
                   }`}
               >
-                {tab === 'quests' ? 'QST' : tab === 'map' ? 'MAP' : tab === 'stats' ? 'STS' : 'HOF'}
+                <span className="flex items-center justify-center gap-1.5 font-bold tracking-wider">
+                  {tab === 'quests' && <QuestIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'map' && <MapIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'stats' && <StatsIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'scores' && <HofIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'quests' ? 'QST' : tab === 'map' ? 'MAP' : tab === 'stats' ? 'STS' : 'HOF'}
+                </span>
               </button>
             ))}
           </div>
@@ -1182,7 +1276,13 @@ export default function App() {
                     : 'text-[#7ea6aa] hover:bg-[#0f171c]/50'
                   }`}
               >
-                {tab === 'quests' ? 'QST' : tab === 'map' ? 'MAP' : tab === 'stats' ? 'STS' : 'HOF'}
+                <span className="flex items-center justify-center gap-1.5 font-bold tracking-wider">
+                  {tab === 'quests' && <QuestIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'map' && <MapIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'stats' && <StatsIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'scores' && <HofIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {tab === 'quests' ? 'QST' : tab === 'map' ? 'MAP' : tab === 'stats' ? 'STS' : 'HOF'}
+                </span>
               </button>
             ))}
           </div>
