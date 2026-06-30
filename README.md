@@ -32,6 +32,13 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
 - **Modern Tech Stack**: React 19, Vite 7, TailwindCSS v4, and TypeScript.
 - **Self-Contained Single-File Build**: Bundles all scripts, CSS, and structural configurations directly into a single lightweight HTML index (`index.html`) using `vite-plugin-singlefile` for instant page loads.
 
+## Recent Bug Fixes
+
+- **Zone Seeding and Softlock Prevention**: Fixed an issue where leaving a boss zone before defeating the boss would prevent the boss from respawning upon re-entry.
+- **Key Recovery System**: Implemented automated key-recovery triggers. If a player defeats the Sand Wyrm or Gruk the Rot-Tusk but leaves the zone before collecting the Hollow Key or Sanctum Seal, the corresponding item will correctly spawn in the center of the zone upon re-entry.
+- **Shadow Warden Boss AI Balance**: Fixed an issue where shadow clones would teleport and spawn secondary clones. Now, only the primary Shadow Warden teleports and spawns clones.
+- **Score Submission Quality of Life**: Added a state check to disable duplicate score submissions, providing clear visual feedback by changing the button to "SAVED" and disabling clicking.
+
 ### Premium UI/UX Features
 
 - **Non-Scrollable Viewport Lock (`100dvh`)**: The entire page is locked to the screen heights. The layout operates as a cohesive, scrollbar-free retro cabinet console.

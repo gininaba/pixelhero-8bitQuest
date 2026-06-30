@@ -141,6 +141,7 @@ export default function App() {
   });
   const [activeSidebarTab, setActiveSidebarTab] = useState<'quests' | 'map' | 'stats' | 'scores'>('quests');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scoreSaved, setScoreSaved] = useState(false);
 
   const g = gameRef.current;
 
@@ -172,6 +173,7 @@ export default function App() {
     setPhase('playing');
     setDialog(null);
     setQuestLogOpen(false);
+    setScoreSaved(false);
     audio.setZoneMusic(0);
   }, []);
 
@@ -229,6 +231,7 @@ export default function App() {
           setPhase('playing');
           setDialog(null);
           setQuestLogOpen(false);
+          setScoreSaved(false);
         }
       }
       if (e.key === ' ' || e.key.toLowerCase() === 'enter') {
@@ -383,12 +386,14 @@ export default function App() {
   }, [phase, touchAttack, touchDash, touchInteract]);
 
   const saveScore = () => {
+    if (scoreSaved) return;
     const gr = gameRef.current;
     const finalScore = gr.score;
     const entry: HighScore = { name: nameInput.slice(0, 8).toUpperCase() || 'HERO', score: finalScore, day: new Date().toLocaleDateString('en-CA') };
     const next = [...highScores, entry].sort((a, b) => b.score - a.score).slice(0, 7);
     setHighScores(next);
     localStorage.setItem('pixHeroScores', JSON.stringify(next));
+    setScoreSaved(true);
   };
 
   const buyShopItem = (item: any) => {
@@ -1006,7 +1011,17 @@ export default function App() {
                     className="pixelfont text-[10px] bg-[#1d1419] border border-[#643142] text-[#ffd4db] px-3 py-[9px] rounded w-[150px] text-center tracking-widest outline-none focus:border-[#ff5f76]"
                     placeholder="HERO"
                   />
-                  <button onClick={saveScore} className="pixelfont text-[9px] px-4 py-[11px] bg-[#17241d] border border-[#3e6b4b] text-[#b4f4c9] rounded hover:bg-[#203229] transition-all cursor-pointer">SAVE SCORE</button>
+                  <button
+                    disabled={scoreSaved}
+                    onClick={saveScore}
+                    className={`pixelfont text-[9px] px-4 py-[11px] rounded transition-all cursor-pointer ${
+                      scoreSaved
+                        ? 'bg-[#1b1c1e] border border-[#303336] text-[#60676a] cursor-not-allowed'
+                        : 'bg-[#17241d] border border-[#3e6b4b] text-[#b4f4c9] hover:bg-[#203229]'
+                    }`}
+                  >
+                    {scoreSaved ? 'SAVED' : 'SAVE SCORE'}
+                  </button>
                 </div>
                 <div className="mt-5 flex gap-3 justify-center">
                   <button onClick={startGame} className="pixelfont text-[10px] px-5 py-3 bg-[#ff5f76] text-white border-2 border-[#ffd3da] rounded cursor-pointer hover:scale-105 transition-all">RESTART [R]</button>
@@ -1035,10 +1050,20 @@ export default function App() {
                     className="pixelfont text-[10px] bg-[#0f2217] border border-[#3b7955] text-[#cffff0] px-3 py-[9px] rounded w-[150px] text-center tracking-widest outline-none focus:border-[#42a86c]"
                     placeholder="HERO"
                   />
-                  <button onClick={saveScore} className="pixelfont text-[9px] px-4 py-[11px] bg-[#f4d86b] text-[#2a1c00] rounded border border-[#fff7cc] hover:scale-105 transition-all cursor-pointer">SAVE SCORE</button>
+                  <button
+                    disabled={scoreSaved}
+                    onClick={saveScore}
+                    className={`pixelfont text-[9px] px-4 py-[11px] rounded border transition-all cursor-pointer ${
+                      scoreSaved
+                        ? 'bg-[#1b1c1e] border-[#303336] text-[#60676a] cursor-not-allowed'
+                        : 'bg-[#f4d86b] text-[#2a1c00] border-[#fff7cc] hover:scale-105'
+                    }`}
+                  >
+                    {scoreSaved ? 'SAVED' : 'SAVE SCORE'}
+                  </button>
                 </div>
                 <div className="mt-5 flex gap-3.5 justify-center flex-wrap">
-                  <button onClick={() => { g.ngPlus = true; g.ngPlusLevel = (g.ngPlusLevel || 0) + 1; resetWorld(g, true); g.phase = 'playing'; setPhase('playing'); setDialog(null); setQuestLogOpen(false); audio.setZoneMusic(0); }} className="pixelfont text-[9px] px-5 py-3 bg-[#9a5fff] text-[#1a0a30] border-2 border-[#d4b8ff] rounded cursor-pointer hover:scale-105 transition-all">NEW GAME+</button>
+                  <button onClick={() => { g.ngPlus = true; g.ngPlusLevel = (g.ngPlusLevel || 0) + 1; resetWorld(g, true); g.phase = 'playing'; setPhase('playing'); setDialog(null); setQuestLogOpen(false); setScoreSaved(false); audio.setZoneMusic(0); }} className="pixelfont text-[9px] px-5 py-3 bg-[#9a5fff] text-[#1a0a30] border-2 border-[#d4b8ff] rounded cursor-pointer hover:scale-105 transition-all">NEW GAME+</button>
                   <button onClick={startGame} className="pixelfont text-[9px] px-5 py-3 bg-[#36d884] text-[#052013] border-2 border-[#b9ffe0] rounded cursor-pointer hover:scale-105 transition-all">PLAY AGAIN</button>
                   <button onClick={() => { g.phase = 'menu'; setPhase('menu'); }} className="pixelfont text-[9px] px-4 py-3 bg-[#16241c] border border-[#37604a] text-[#c5f3d2] rounded cursor-pointer hover:bg-[#203427] transition-all">MENU</button>
                 </div>

@@ -72,6 +72,7 @@ export const makeEnemy = (type: Enemy['type'], x: number, y: number, ngScale = 1
 export const seedZone = (gr: GameState, zone: ZoneId) => {
   gr.decor = [];
   gr.projectiles = []; // Clear projectiles when changing zones
+  gr.bossSpawned = false; // Reset boss spawned flag so they spawn when entering their zone
 
   const ngScale = gr.ngPlus ? 1.5 + gr.ngPlusLevel * 0.25 : 1;
 
@@ -137,6 +138,9 @@ export const seedZone = (gr: GameState, zone: ZoneId) => {
 
     // Scatter relics
     gr.drops = gr.drops.filter(() => false); // Clear all drops
+    if (gr.sandwyrmDefeated && !gr.hasHollowKey) {
+      spawnDrop(gr, { id: nextId(), type: 'hollow_key', x: GAME_W / 2, y: 250, bob: 0, taken: false });
+    }
     for (let i = 0; i < 4; i++) {
       spawnDrop(gr, { id: nextId(), type: 'relic', x: rand(100, GAME_W - 100), y: rand(150, GAME_H - 100), bob: Math.random() * 6.28, taken: false });
     }
@@ -175,6 +179,9 @@ export const seedZone = (gr: GameState, zone: ZoneId) => {
     }
 
     gr.drops = gr.drops.filter(() => false);
+    if (gr.grukDefeated && !gr.hasSanctumSeal) {
+      spawnDrop(gr, { id: nextId(), type: 'sanctum_seal', x: GAME_W / 2, y: 238, bob: 0, taken: false });
+    }
     for (let i = 0; i < 4; i++) {
       spawnDrop(gr, { id: nextId(), type: 'coin', x: rand(80, GAME_W - 80), y: rand(140, GAME_H - 100), bob: Math.random() * 6.28, taken: false });
     }

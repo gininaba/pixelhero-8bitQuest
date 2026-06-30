@@ -988,21 +988,23 @@ function updateShadowWardenAI(gr: GameState, e: Enemy, pl: GameState['player'] &
     e.vy += (dy / d) * spd * 0.12;
   }
 
-  // Teleport behind player
-  e.teleportTimer--;
-  if (e.teleportTimer <= 0) {
-    e.teleportTimer = 180 + Math.floor(rand(0, 80));
-    const behindAng = Math.atan2(pl.y - e.y, pl.x - e.x);
-    const tpX = clamp(pl.x + Math.cos(behindAng + Math.PI) * 60, 60, GAME_W - 60);
-    const tpY = clamp(pl.y + Math.sin(behindAng + Math.PI) * 60, 130, GAME_H - 60);
-    burstParticles(gr, e.x, e.y, 14, '#7744bb');
-    e.x = tpX;
-    e.y = tpY;
-    e.vx = 0; e.vy = 0;
-    burstParticles(gr, e.x, e.y, 14, '#aa66ee');
-    spawnFloater(gr, { x: e.x, y: e.y - 24, text: 'WARP!', color: '#bb88ff', life: 40, vy: -0.7 });
-    audio.playSfx('dash');
-    gr.shake = 4;
+  // Teleport behind player (only main boss teleports)
+  if (!e.isClone) {
+    e.teleportTimer--;
+    if (e.teleportTimer <= 0) {
+      e.teleportTimer = 180 + Math.floor(rand(0, 80));
+      const behindAng = Math.atan2(pl.y - e.y, pl.x - e.x);
+      const tpX = clamp(pl.x + Math.cos(behindAng + Math.PI) * 60, 60, GAME_W - 60);
+      const tpY = clamp(pl.y + Math.sin(behindAng + Math.PI) * 60, 130, GAME_H - 60);
+      burstParticles(gr, e.x, e.y, 14, '#7744bb');
+      e.x = tpX;
+      e.y = tpY;
+      e.vx = 0; e.vy = 0;
+      burstParticles(gr, e.x, e.y, 14, '#aa66ee');
+      spawnFloater(gr, { x: e.x, y: e.y - 24, text: 'WARP!', color: '#bb88ff', life: 40, vy: -0.7 });
+      audio.playSfx('dash');
+      gr.shake = 4;
+    }
   }
 
   // Shadow bullet barrage
@@ -1027,8 +1029,8 @@ function updateShadowWardenAI(gr: GameState, e: Enemy, pl: GameState['player'] &
     audio.playSfx('hit');
   }
 
-  // Spawn shadow clones at low HP
-  if (hpPct <= 0.4 && gr.frame % 600 === 0) {
+  // Spawn shadow clones at low HP (only main boss spawns clones)
+  if (!e.isClone && hpPct <= 0.4 && gr.frame % 600 === 0) {
     const cloneCount = gr.enemies.filter(en => en.isClone).length;
     if (cloneCount < 2) {
       const clone = makeEnemy('shadow_warden', e.x + rand(-80, 80), e.y + rand(-60, 60), 0.35);
