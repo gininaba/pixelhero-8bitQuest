@@ -1020,11 +1020,10 @@ export default function App() {
                   <button
                     disabled={scoreSaved}
                     onClick={saveScore}
-                    className={`pixelfont text-[9px] px-4 py-[11px] rounded transition-all cursor-pointer ${
-                      scoreSaved
+                    className={`pixelfont text-[9px] px-4 py-[11px] rounded transition-all cursor-pointer ${scoreSaved
                         ? 'bg-[#1b1c1e] border border-[#303336] text-[#60676a] cursor-not-allowed'
                         : 'bg-[#17241d] border border-[#3e6b4b] text-[#b4f4c9] hover:bg-[#203229]'
-                    }`}
+                      }`}
                   >
                     {scoreSaved ? 'SAVED' : 'SAVE SCORE'}
                   </button>
@@ -1059,11 +1058,10 @@ export default function App() {
                   <button
                     disabled={scoreSaved}
                     onClick={saveScore}
-                    className={`pixelfont text-[9px] px-4 py-[11px] rounded border transition-all cursor-pointer ${
-                      scoreSaved
+                    className={`pixelfont text-[9px] px-4 py-[11px] rounded border transition-all cursor-pointer ${scoreSaved
                         ? 'bg-[#1b1c1e] border-[#303336] text-[#60676a] cursor-not-allowed'
                         : 'bg-[#f4d86b] text-[#2a1c00] border-[#fff7cc] hover:scale-105'
-                    }`}
+                      }`}
                   >
                     {scoreSaved ? 'SAVED' : 'SAVE SCORE'}
                   </button>
@@ -1122,10 +1120,10 @@ export default function App() {
                           disabled={disableBuy}
                           onClick={() => buyShopItem(item)}
                           className={`px-3 py-2 rounded text-[8px] border-2 transition-all cursor-pointer shrink-0 ${isOwnedMax
-                              ? 'border-[#3f4a44] bg-[#222a25] text-[#556b5e]'
-                              : canAfford
-                                ? 'border-[#ffec85] bg-[#ebd056] text-[#2a1c00] hover:scale-105 active:scale-95'
-                                : 'border-[#423b2c] bg-[#262118] text-[#705e43]'
+                            ? 'border-[#3f4a44] bg-[#222a25] text-[#556b5e]'
+                            : canAfford
+                              ? 'border-[#ffec85] bg-[#ebd056] text-[#2a1c00] hover:scale-105 active:scale-95'
+                              : 'border-[#423b2c] bg-[#262118] text-[#705e43]'
                             }`}
                         >
                           {isOwnedMax ? 'SOLD' : `${cost}¢`}
@@ -1243,14 +1241,14 @@ export default function App() {
                   audio.playSfx('click');
                 }}
                 className={`flex-1 py-3 text-[9px] pixelfont transition-colors cursor-pointer text-center ${activeSidebarTab === tab
-                    ? tab === 'quests'
-                      ? 'bg-[#12221b] text-[#ffe37a] border-b-2 border-[#ffe37a]'
-                      : tab === 'map'
-                        ? 'bg-[#101b22] text-[#9eeaff] border-b-2 border-[#9eeaff]'
-                        : tab === 'stats'
-                          ? 'bg-[#151119] text-[#fea7bb] border-b-2 border-[#fea7bb]'
-                          : 'bg-[#121314] text-[#ffd86d] border-b-2 border-[#ffd86d]'
-                    : 'text-[#7ea6aa] hover:bg-[#0f171c]/40 hover:text-white'
+                  ? tab === 'quests'
+                    ? 'bg-[#12221b] text-[#ffe37a] border-b-2 border-[#ffe37a]'
+                    : tab === 'map'
+                      ? 'bg-[#101b22] text-[#9eeaff] border-b-2 border-[#9eeaff]'
+                      : tab === 'stats'
+                        ? 'bg-[#151119] text-[#fea7bb] border-b-2 border-[#fea7bb]'
+                        : 'bg-[#121314] text-[#ffd86d] border-b-2 border-[#ffd86d]'
+                  : 'text-[#7ea6aa] hover:bg-[#0f171c]/40 hover:text-white'
                   }`}
               >
                 <span className="flex items-center justify-center gap-1.5 font-bold tracking-wider">
@@ -1297,14 +1295,14 @@ export default function App() {
                   audio.playSfx('click');
                 }}
                 className={`flex-1 py-3 text-[9px] pixelfont transition-colors cursor-pointer text-center ${activeSidebarTab === tab
-                    ? tab === 'quests'
-                      ? 'bg-[#12221b] text-[#ffe37a]'
-                      : tab === 'map'
-                        ? 'bg-[#101b22] text-[#9eeaff]'
-                        : tab === 'stats'
-                          ? 'bg-[#151119] text-[#fea7bb]'
-                          : 'bg-[#121314] text-[#ffd86d]'
-                    : 'text-[#7ea6aa] hover:bg-[#0f171c]/50'
+                  ? tab === 'quests'
+                    ? 'bg-[#12221b] text-[#ffe37a]'
+                    : tab === 'map'
+                      ? 'bg-[#101b22] text-[#9eeaff]'
+                      : tab === 'stats'
+                        ? 'bg-[#151119] text-[#fea7bb]'
+                        : 'bg-[#121314] text-[#ffd86d]'
+                  : 'text-[#7ea6aa] hover:bg-[#0f171c]/50'
                   }`}
               >
                 <span className="flex items-center justify-center gap-1.5 font-bold tracking-wider">
@@ -1327,7 +1325,7 @@ export default function App() {
 
       {/* Tiny Footer */}
       <footer className="w-full text-center py-1 bg-[#040608] border-t border-[#121c18] text-[13px] vtt text-[#546e5f] shrink-0">
-        Press Start 2P • built for 60fps • R to quick-restart • Developed by gininaba • 2026 Pixel Hero
+        Press Start 2P • built for 60fps • R to quick-restart • 2026 PixelHero
       </footer>
     </div>
   );
