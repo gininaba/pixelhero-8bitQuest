@@ -433,7 +433,7 @@ export default function App() {
                 <div key={z.id} className={`flex items-center justify-between px-3 py-2 rounded-lg border transition-all duration-200 ${g.zone === i ? 'bg-[#122820] border-[#39a06b] text-[#b8ffe2] shadow-[0_0_10px_rgba(57,160,107,0.1)]' : 'bg-[#0b1115] border-[#1c2930] text-[#8ea6aa] hover:bg-[#0f171d]'}`}>
                   <div className="flex flex-col">
                     <span className="font-bold tracking-wide">{z.name}</span>
-                    <span className="text-[12px] text-[#708a90] -mt-1">{z.safe ? '🏡 Safe Town' : '⚔️ Combat Zone'}</span>
+                    <span className="text-[12px] text-[#708a90] -mt-1">{z.safe ? 'Safe Town' : 'Combat Zone'}</span>
                   </div>
                   <span className="pixelfont text-[7px]">{g.zone === i ? '● ACTIVE' : '○'}</span>
                 </div>
@@ -568,14 +568,14 @@ export default function App() {
               audio.playSfx('click');
             }}
           >
-            📋 MENU
+            MENU
           </button>
 
           <button
             className="pixelfont text-[8px] sm:text-[9px] px-2.5 py-[8px] rounded bg-[#13221b] border border-[#2e523f] text-[#8ef7bf] hover:bg-[#1a3327] cursor-pointer"
             onClick={toggleMute}
           >
-            {muted ? '🔇 MUTED' : '🔊 MUSIC'}
+            {muted ? 'MUTED' : 'MUSIC'}
           </button>
 
           <button
@@ -617,8 +617,8 @@ export default function App() {
                 <span className="text-[#8fffb7]">¢ {g.player?.coins ?? 0}</span>
                 <span className="text-[#ff9ab0]">LV {g.player?.level ?? 1}</span>
                 <span className="text-[#9fdfff]">{ZONES[g.zone]?.name}</span>
-                {g.player?.hasFireball && <span className="text-[#ffa043] animate-pulse">🔥</span>}
-                {g.player?.hasVampire && <span className="text-[#bd52ff] animate-pulse">💀</span>}
+                {g.player?.hasFireball && <span className="text-[#ffa043] animate-pulse text-[10px] font-bold tracking-widest">FIRE</span>}
+                {g.player?.hasVampire && <span className="text-[#bd52ff] animate-pulse text-[10px] font-bold tracking-widest">VAMP</span>}
                 <span className="text-[#d5d6c8] ml-auto">KILLS {g.kills}</span>
               </div>
             </div>
@@ -1049,24 +1049,24 @@ export default function App() {
                     const pData = ALL_PERKS.find(p => p.id === perkId);
                     if (!pData) return null;
 
-                    let icon = "⚔️";
+                    let icon = "ATK";
                     let color = "border-[#db5a6b] text-[#ffa3af] bg-[#201014]";
                     let hoverGlow = "hover:shadow-[0_0_20px_rgba(219,90,107,0.3)]";
 
                     if (perkId === 'speed') {
-                      icon = "⚡";
+                      icon = "SPD";
                       color = "border-[#5cbfff] text-[#bce7ff] bg-[#101824]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(92,191,255,0.3)]";
                     } else if (perkId === 'hp') {
-                      icon = "💖";
+                      icon = "HP";
                       color = "border-[#52df97] text-[#c0ffd8] bg-[#0c2016]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(82,223,151,0.3)]";
                     } else if (perkId === 'fireball') {
-                      icon = "🔥";
+                      icon = "FIRE";
                       color = "border-[#ffa043] text-[#ffe3b8] bg-[#241710]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(255,160,67,0.3)]";
                     } else if (perkId === 'vampire') {
-                      icon = "💀";
+                      icon = "VAMP";
                       color = "border-[#bd52ff] text-[#e8bdff] bg-[#1b1024]";
                       hoverGlow = "hover:shadow-[0_0_20px_rgba(189,82,255,0.3)]";
                     }
@@ -1134,7 +1134,7 @@ export default function App() {
                     : 'text-[#7ea6aa] hover:bg-[#0f171c]/40 hover:text-white'
                   }`}
               >
-                {tab === 'quests' ? '📋 QST' : tab === 'map' ? '🗺️ MAP' : tab === 'stats' ? '📊 STS' : '🏆 HOF'}
+                {tab === 'quests' ? 'QST' : tab === 'map' ? 'MAP' : tab === 'stats' ? 'STS' : 'HOF'}
               </button>
             ))}
           </div>
@@ -1182,7 +1182,7 @@ export default function App() {
                     : 'text-[#7ea6aa] hover:bg-[#0f171c]/50'
                   }`}
               >
-                {tab === 'quests' ? '📋 QST' : tab === 'map' ? '🗺️ MAP' : tab === 'stats' ? '📊 STS' : '🏆 HOF'}
+                {tab === 'quests' ? 'QST' : tab === 'map' ? 'MAP' : tab === 'stats' ? 'STS' : 'HOF'}
               </button>
             ))}
           </div>

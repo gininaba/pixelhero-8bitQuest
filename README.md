@@ -38,11 +38,11 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
 - **Curved Glass CRT Monitor Simulation**: The canvas container simulates a retro glass monitor utilizing horizontal scanlines, vignetting, custom RGB subgrids, and high-frequency phosphor flicker.
 - **3D Moving Horizon Menu Grid**: An animated retro-wave perspective grid moving dynamically under the main menu.
 - **Tabbed Dashboard Console & Mobile Compass Drawer**: All sidebar statistics, maps, active tasks, and high scores are consolidated into modular tabs:
-  - **📋 QST (Quests)**: Check active quest details and task completion meters.
-  - **🗺️ MAP (World Map)**: Shows active zone and combat status.
-  - **📊 STS (Stats)**: Shows player stats alongside integrated controls reference.
-  - **🏆 HOF (Hall of Heroes)**: Display leaderboard entries.
-  - *On mobile viewports, these tabs are accessible via a sliding fullscreen compass overlay drawer (`[📋 MENU]`).*
+  - **QST (Quests)**: Check active quest details and task completion meters.
+  - **MAP (World Map)**: Shows active zone and combat status.
+  - **STS (Stats)**: Shows player stats alongside integrated controls reference.
+  - **HOF (Hall of Heroes)**: Display leaderboard entries.
+  - *On mobile viewports, these tabs are accessible via a sliding fullscreen compass overlay drawer (`[MENU]`).*
 - **Universal Pointer Joystick (Gamepad)**: Joysticks are integrated with **PointerEvents** rather than touch-events. Includes **Pointer Capture** to track dragging outside the joystick circle smoothly, and works out-of-the-box for both touch screens, styluses, and mouse drag inputs.
 - **Adaptive Screen Configurations**:
   - *Landscape Mode*: Maximizes the canvas inside the screen, floating controls transparently on left/right screen margins.
