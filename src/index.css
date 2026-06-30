@@ -1,1 +1,209 @@
 @import "tailwindcss";
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #05080a;
+  color: #e8efe8;
+  font-family: "VT323", monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar for active tabs and scrollable contents */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #203529 #0a110e;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0a110e;
+  border-left: 1px solid #162620;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #203529;
+  border-radius: 0px;
+  border: 1px solid #2b4b3a;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #2c4c39;
+}
+
+/* Animations for modern UX */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(110, 255, 176, 0.2)); }
+  50% { filter: drop-shadow(0 0 12px rgba(110, 255, 176, 0.45)); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glow-pulse {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* Retro 3D Grid Animation */
+.grid-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  overflow: hidden;
+  perspective: 150px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.retro-grid {
+  position: absolute;
+  top: -100%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(51, 209, 122, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(51, 209, 122, 0.25) 1px, transparent 1px);
+  transform: rotateX(80deg);
+  transform-origin: center top;
+  animation: gridMove 2.5s linear infinite;
+}
+
+.grid-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #060c0b 0%, transparent 80%);
+  z-index: 2;
+}
+
+@keyframes gridMove {
+  from {
+    transform: rotateX(80deg) translateY(0);
+  }
+  to {
+    transform: rotateX(80deg) translateY(32px);
+  }
+}
+
+/* CRT Screen Vignette, Phosphor, and Flicker */
+@keyframes crtFlicker {
+  0% { opacity: 0.99; }
+  50% { opacity: 1; }
+  100% { opacity: 0.995; }
+}
+
+.crt-screen {
+  position: relative;
+  overflow: hidden;
+  animation: crtFlicker 0.2s infinite;
+}
+
+.crt-screen::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: radial-gradient(circle, transparent 65%, rgba(0, 0, 0, 0.75) 130%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.crt-screen::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 11;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Neon Glow Typography */
+.neon-glow-emerald {
+  text-shadow: 0 0 5px rgba(110, 255, 176, 0.5), 0 0 15px rgba(110, 255, 176, 0.25);
+}
+
+.neon-glow-gold {
+  text-shadow: 0 0 5px rgba(255, 207, 107, 0.5), 0 0 15px rgba(255, 207, 107, 0.25);
+}
+
+/* High Fidelity Pixel Buttons */
+.btn-pixel-green {
+  background-color: #33d17a;
+  color: #052116;
+  border-left: 3px solid #b9ffd8;
+  border-top: 3px solid #b9ffd8;
+  border-right: 3px solid #0f592e;
+  border-bottom: 3px solid #0f592e;
+  box-shadow: 0 0 10px rgba(51, 209, 122, 0.2);
+}
+
+.btn-pixel-green:hover {
+  background-color: #41e289;
+  box-shadow: 0 0 18px rgba(51, 209, 122, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-pixel-green:active {
+  border-left: 3px solid #0f592e;
+  border-top: 3px solid #0f592e;
+  border-right: 3px solid #b9ffd8;
+  border-bottom: 3px solid #b9ffd8;
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.btn-pixel-dark {
+  background-color: #121c17;
+  color: #b8f4ce;
+  border-left: 3px solid #2c5540;
+  border-top: 3px solid #2c5540;
+  border-right: 3px solid #0a110d;
+  border-bottom: 3px solid #0a110d;
+}
+
+.btn-pixel-dark:hover {
+  background-color: #18271e;
+  color: #cfffdf;
+  border-left: 3px solid #3d7558;
+  border-top: 3px solid #3d7558;
+  box-shadow: 0 0 12px rgba(44, 85, 64, 0.35);
+}
+
+.btn-pixel-dark:active {
+  border-left: 3px solid #0a110d;
+  border-top: 3px solid #0a110d;
+  border-right: 3px solid #2c5540;
+  border-bottom: 3px solid #2c5540;
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Touch controls visibility based on pointer device type */
+@media (pointer: fine) {
+  .touch-controls {
+    display: none !important;
+  }
+}
+
+/* Desktop keyboard hints hidden on touch devices */
+@media (pointer: coarse) {
+  .desktop-controls-hint {
+    display: none !important;
+  }
+}

@@ -1,13 +1,13 @@
 <div align="center">
   <img src="public/pixelquest_logo.png" alt="PixelHero Logo" width="128" height="128" />
   <h1>PixelHero</h1>
-  <p><strong>An action-packed 2D top-down RPG built entirely in React, TypeScript, and HTML5 Canvas.</strong></p>
+  <p><strong>An action-packed 2D top-down RPG built entirely in React 19, TypeScript, and HTML5 Canvas.</strong></p>
   
   <p>
-    <img src="https://img.shields.io/badge/React-19.0-blue.svg?style=for-the-badge&logo=react" alt="React 19" />
-    <img src="https://img.shields.io/badge/TypeScript-5.6-blue.svg?style=for-the-badge&logo=typescript" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/Vite-6.0-646CFF.svg?style=for-the-badge&logo=vite" alt="Vite" />
-    <img src="https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?style=for-the-badge&logo=tailwind-css" alt="TailwindCSS" />
+    <img src="https://img.shields.io/badge/React-19.2-blue.svg?style=for-the-badge&logo=react" alt="React 19" />
+    <img src="https://img.shields.io/badge/TypeScript-5.9-blue.svg?style=for-the-badge&logo=typescript" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Vite-7.3-646CFF.svg?style=for-the-badge&logo=vite" alt="Vite" />
+    <img src="https://img.shields.io/badge/Tailwind-4.1-38B2AC.svg?style=for-the-badge&logo=tailwind-css" alt="TailwindCSS v4" />
   </p>
 </div>
 
@@ -29,8 +29,24 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
 - **Loot & Leveling**: Gain XP, level up your stats, visit the merchant, and collect coins, hearts, and relics.
 - **New Game+**: Replay with scaled difficulty (Enemies +50% HP, +30% Damage), while retaining your perks and upgrades.
 - **Procedural Audio**: 3 distinct, procedural MIDI-like music themes (Desert, Dungeon, Sanctum) and synthesized sound effects.
-- **Responsive Controls**: Keyboard and touch-joystick support.
-- **Modern Tech Stack**: React 19, Vite, TailwindCSS, and TypeScript.
+- **Modern Tech Stack**: React 19, Vite 7, TailwindCSS v4, and TypeScript.
+- **Self-Contained Single-File Build**: Bundles all scripts, CSS, and structural configurations directly into a single lightweight HTML index (`index.html`) using `vite-plugin-singlefile` for instant page loads.
+
+### Premium UI/UX Features
+
+- **Non-Scrollable Viewport Lock (`100dvh`)**: The entire page is locked to the screen heights. The layout operates as a cohesive, scrollbar-free retro cabinet console.
+- **Curved Glass CRT Monitor Simulation**: The canvas container simulates a retro glass monitor utilizing horizontal scanlines, vignetting, custom RGB subgrids, and high-frequency phosphor flicker.
+- **3D Moving Horizon Menu Grid**: An animated retro-wave perspective grid moving dynamically under the main menu.
+- **Tabbed Dashboard Console & Mobile Compass Drawer**: All sidebar statistics, maps, active tasks, and high scores are consolidated into modular tabs:
+  - **📋 QST (Quests)**: Check active quest details and task completion meters.
+  - **🗺️ MAP (World Map)**: Shows active zone and combat status.
+  - **📊 STS (Stats)**: Shows player stats alongside integrated controls reference.
+  - **🏆 HOF (Hall of Heroes)**: Display leaderboard entries.
+  - *On mobile viewports, these tabs are accessible via a sliding fullscreen compass overlay drawer (`[📋 MENU]`).*
+- **Universal Pointer Joystick (Gamepad)**: Joysticks are integrated with **PointerEvents** rather than touch-events. Includes **Pointer Capture** to track dragging outside the joystick circle smoothly, and works out-of-the-box for both touch screens, styluses, and mouse drag inputs.
+- **Adaptive Screen Configurations**:
+  - *Landscape Mode*: Maximizes the canvas inside the screen, floating controls transparently on left/right screen margins.
+  - *Portrait Mode*: Stacks the canvas at the top and allocates the lower half as a tactile, dedicated gamepad panel to keep fingers off the screen.
 
 ## Setup Instructions
 
@@ -53,8 +69,16 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
 4. **Open in Browser**:
    Navigate to `http://localhost:5173` (or the port Vite provides) to play the game!
 
+5. **Build for Production**:
+   Build the self-contained single file build:
+   ```bash
+   npm run build
+   ```
+   The output is built at `dist/index.html`.
+
 ## Usage & Controls
 
+### Keyboard controls (Desktop)
 - **Movement**: `W` `A` `S` `D` or `Arrow Keys`
 - **Attack**: `Space`, `J`, or `K`
 - **Dash**: `Shift` or `L`
@@ -62,6 +86,12 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
 - **Pause Game**: `Escape` or `P`
 - **Quest Log**: `Q`
 - **Instant Restart**: `R`
+
+### Gamepad controls (Mobile / Touch Devices)
+- **Movement**: Touch/click and drag the virtual **Joystick knob** (labeled `MOVE`).
+- **Attack**: Tap the red **`ATK`** button.
+- **Dash**: Tap the blue **`DSH`** button.
+- **Interact / Talk**: Tap the yellow **`USE`** button.
 
 ## Documentation
 
@@ -81,3 +111,4 @@ We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
