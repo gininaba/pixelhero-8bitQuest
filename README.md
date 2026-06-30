@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/favicon.png" alt="PixelHero Logo" width="128" height="128" />
+  <img src="public/pixelquest_logo.png" alt="PixelHero Logo" width="128" height="128" />
   <h1>PixelHero</h1>
   <p><strong>An action-packed 2D top-down RPG built entirely in React, TypeScript, and HTML5 Canvas.</strong></p>
   

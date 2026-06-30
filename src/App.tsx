@@ -429,17 +429,19 @@ export default function App() {
         <div className="flex-1 min-w-0">
           <div className="relative rounded-[14px] overflow-hidden crt-glow pixel-border bg-[#0e1412]">
             {/* Top HUD over canvas */}
-            <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
-              <div className="flex flex-wrap gap-2 sm:gap-3 px-3 sm:px-4 py-[9px] bg-gradient-to-b from-[#09110e]/95 to-[#09110e]/30 text-[10px] pixelfont">
-                <span className="text-[#ffe36a]">SCORE {g.score.toLocaleString()}</span>
-                <span className="text-[#8fffb7]">¢ {g.player?.coins ?? 0}</span>
-                <span className="text-[#ff9ab0]">LV {g.player?.level ?? 1}</span>
-                <span className="text-[#9fdfff] hidden sm:inline">{ZONES[g.zone]?.name}</span>
-                {g.player?.hasFireball && <span className="text-[#ffa043]">🔥</span>}
-                {g.player?.hasVampire && <span className="text-[#bd52ff]">💀</span>}
-                <span className="text-[#d5d6c8] ml-auto">K {g.kills}</span>
+            {phase !== 'menu' && (
+              <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
+                <div className="flex flex-wrap gap-2 sm:gap-3 px-3 sm:px-4 py-[9px] bg-gradient-to-b from-[#09110e]/95 to-[#09110e]/30 text-[10px] pixelfont">
+                  <span className="text-[#ffe36a]">SCORE {g.score.toLocaleString()}</span>
+                  <span className="text-[#8fffb7]">¢ {g.player?.coins ?? 0}</span>
+                  <span className="text-[#ff9ab0]">LV {g.player?.level ?? 1}</span>
+                  <span className="text-[#9fdfff] hidden sm:inline">{ZONES[g.zone]?.name}</span>
+                  {g.player?.hasFireball && <span className="text-[#ffa043]">🔥</span>}
+                  {g.player?.hasVampire && <span className="text-[#bd52ff]">💀</span>}
+                  <span className="text-[#d5d6c8] ml-auto">K {g.kills}</span>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="relative scan bg-black">
               <canvas
@@ -465,55 +467,57 @@ export default function App() {
             </div>
 
             {/* bottom HUD */}
-            <div className="bg-[#0e1715] border-t border-[#1e3129] px-3 sm:px-4 py-3 flex flex-wrap items-center gap-3 sm:gap-5">
-              {/* HP */}
-              <div className="flex items-center gap-3">
-                <div className="pixelfont text-[9px] text-[#ff8d98]">HP</div>
-                <div className="w-[144px] sm:w-[200px] h-[13px] bg-[#111c19] border border-[#253c31] rounded-[4px] overflow-hidden relative">
-                  <div
-                    className="h-full transition-all duration-100"
-                    style={{
-                      width: `${((g.player?.hp ?? 0) / (g.player?.maxHp ?? 84))*100}%`,
-                      background: 'linear-gradient(90deg,#ff5d72,#ff9179)'
-                    }}
-                  />
+            {phase !== 'menu' && (
+              <div className="bg-[#0e1715] border-t border-[#1e3129] px-3 sm:px-4 py-3 flex flex-wrap items-center gap-3 sm:gap-5">
+                {/* HP */}
+                <div className="flex items-center gap-3">
+                  <div className="pixelfont text-[9px] text-[#ff8d98]">HP</div>
+                  <div className="w-[144px] sm:w-[200px] h-[13px] bg-[#111c19] border border-[#253c31] rounded-[4px] overflow-hidden relative">
+                    <div
+                      className="h-full transition-all duration-100"
+                      style={{
+                        width: `${((g.player?.hp ?? 0) / (g.player?.maxHp ?? 84))*100}%`,
+                        background: 'linear-gradient(90deg,#ff5d72,#ff9179)'
+                      }}
+                    />
+                  </div>
+                  <div className="vtt text-[20px] text-[#ffd4d8] min-w-[74px]">{g.player?.hp ?? 84}/{g.player?.maxHp ?? 84}</div>
                 </div>
-                <div className="vtt text-[20px] text-[#ffd4d8] min-w-[74px]">{g.player?.hp ?? 84}/{g.player?.maxHp ?? 84}</div>
+
+                {/* XP */}
+                <div className="flex items-center gap-2">
+                  <div className="pixelfont text-[8px] text-[#95e9ff]">XP</div>
+                  <div className="w-[104px] sm:w-[140px] h-[8px] bg-[#101a20] border border-[#23414f] rounded-[3px] overflow-hidden">
+                    <div className="h-full bg-[#6fdfff]" style={{width:`${((g.player?.xp ?? 0)/((g.player?.level ?? 1)*32))*100}%`}} />
+                  </div>
+                </div>
+
+                <div className="ml-auto flex items-center gap-3 text-[10px] pixelfont">
+                  {/* Visual ATK Gauge */}
+                  <div className="relative overflow-hidden px-2 py-[4px] rounded border border-[#284034] text-[#8ff9b8] bg-[#0f1b16] min-w-[48px] text-center">
+                    <div
+                      className="absolute top-0 left-0 bottom-0 bg-[#163b27] transition-all duration-75"
+                      style={{ width: `${100 - ((g.player?.attackCd ?? 0) / 19) * 100}%` }}
+                    />
+                    <span className="relative z-10">ATK</span>
+                  </div>
+
+                  {/* Visual DASH Gauge */}
+                  <div className="relative overflow-hidden px-2 py-[4px] rounded border border-[#27424c] text-[#b8f5ff] bg-[#0c1820] min-w-[56px] text-center">
+                    <div
+                      className="absolute top-0 left-0 bottom-0 bg-[#12313d] transition-all duration-75"
+                      style={{ width: `${100 - ((g.player?.dashCd ?? 0) / (g.player?.dashCdMax ?? 44)) * 100}%` }}
+                    />
+                    <span className="relative z-10">DASH</span>
+                  </div>
+
+                  <button
+                    onClick={()=>setQuestLogOpen(o=>!o)}
+                    className="px-[11px] py-[6px] rounded bg-[#19261f] border border-[#345945] text-[#c3f2d2] hover:bg-[#20372b] cursor-pointer"
+                  >Q LOG</button>
+                </div>
               </div>
-
-              {/* XP */}
-              <div className="flex items-center gap-2">
-                <div className="pixelfont text-[8px] text-[#95e9ff]">XP</div>
-                <div className="w-[104px] sm:w-[140px] h-[8px] bg-[#101a20] border border-[#23414f] rounded-[3px] overflow-hidden">
-                  <div className="h-full bg-[#6fdfff]" style={{width:`${((g.player?.xp ?? 0)/((g.player?.level ?? 1)*32))*100}%`}} />
-                </div>
-              </div>
-
-              <div className="ml-auto flex items-center gap-3 text-[10px] pixelfont">
-                {/* Visual ATK Gauge */}
-                <div className="relative overflow-hidden px-2 py-[4px] rounded border border-[#284034] text-[#8ff9b8] bg-[#0f1b16] min-w-[48px] text-center">
-                  <div
-                    className="absolute top-0 left-0 bottom-0 bg-[#163b27] transition-all duration-75"
-                    style={{ width: `${100 - ((g.player?.attackCd ?? 0) / 19) * 100}%` }}
-                  />
-                  <span className="relative z-10">ATK</span>
-                </div>
-
-                {/* Visual DASH Gauge */}
-                <div className="relative overflow-hidden px-2 py-[4px] rounded border border-[#27424c] text-[#b8f5ff] bg-[#0c1820] min-w-[56px] text-center">
-                  <div
-                    className="absolute top-0 left-0 bottom-0 bg-[#12313d] transition-all duration-75"
-                    style={{ width: `${100 - ((g.player?.dashCd ?? 0) / (g.player?.dashCdMax ?? 44)) * 100}%` }}
-                  />
-                  <span className="relative z-10">DASH</span>
-                </div>
-
-                <button
-                  onClick={()=>setQuestLogOpen(o=>!o)}
-                  className="px-[11px] py-[6px] rounded bg-[#19261f] border border-[#345945] text-[#c3f2d2] hover:bg-[#20372b] cursor-pointer"
-                >Q LOG</button>
-              </div>
-            </div>
+            )}
 
             {/* Touch Controls Overlay (mobile) */}
             {phase==='playing' && (
@@ -564,31 +568,37 @@ export default function App() {
 
             {/* overlays */}
             {phase==='menu' && (
-              <div className="absolute inset-0 bg-[#060c0b]/[0.86] flex items-center justify-center z-30 px-4">
-                <div className="max-w-[620px] w-full text-center">
-                  <div className="pixelfont text-[11px] text-[#7ee9a8] tracking-widest">8-BIT ARCADE RPG</div>
-                  <h1 className="pixelfont text-[22px] sm:text-[33px] text-[#fff6d2] mt-3 leading-tight drop-shadow-[0_3px_0_#b23a36]">PIXEL HERO</h1>
-                  <div className="pixelfont text-[9px] sm:text-[11px] text-[#ffcf6b] mt-2">THE BEAN-CURSE SAGA</div>
-                  <p className="vtt text-[22px] text-[#c9e8ce] mt-5 leading-snug">
+              <div className="absolute inset-0 bg-[#060c0b]/[0.93] flex items-center justify-center z-30 px-4">
+                <div className="max-w-[500px] w-full text-center">
+                  <div className="pixelfont text-[9px] sm:text-[10px] text-[#7ee9a8] tracking-widest uppercase">8-Bit Arcade RPG</div>
+                  <img 
+                    src="/pixelquest_logo.png" 
+                    alt="PixelHero Logo" 
+                    className="w-[65%] max-w-[260px] mx-auto my-4 drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]" 
+                    style={{ imageRendering: 'pixelated' }} 
+                  />
+                  <div className="pixelfont text-[9px] sm:text-[10px] text-[#ffcf6b] tracking-wider">THE BEAN-CURSE SAGA</div>
+                  <p className="vtt text-[18px] sm:text-[21px] text-[#c9e8ce] mt-4 leading-normal max-w-[420px] mx-auto">
                     Emberwick’s fields wilt. Slimes boil in Gloomwood. Talk to Elder Mael, clear tasks, steal the Hollow Key, and topple Gruk the Rot-Tusk.
                   </p>
-                  <div className="mt-6 flex flex-wrap justify-center gap-3">
-                    <button onClick={startGame} className="pixelfont text-[12px] sm:text-[13px] px-7 py-[16px] rounded-[8px] bg-[#33d17a] text-[#052116] border-[4px] border-[#b9ffd8] shadow-[0_5px_0_#0a7a43] active:translate-y-[4px] active:shadow-[0_1px_0_#0a7a43] transition-all cursor-pointer">
+                  <div className="mt-6 flex flex-wrap justify-center items-center gap-3">
+                    <button 
+                      onClick={startGame} 
+                      className="pixelfont text-[11px] sm:text-[12px] px-6 py-[12px] sm:px-7 sm:py-[14px] rounded-[8px] bg-[#33d17a] text-[#052116] border-[3px] border-[#b9ffd8] shadow-[0_4px_0_#0a7a43] active:translate-y-[4px] active:shadow-[0_0px_0_#0a7a43] transition-all cursor-pointer"
+                    >
                       START QUEST
                     </button>
-                    <button onClick={()=> {
-                      const hsEl = document.getElementById('scores');
-                      hsEl?.scrollIntoView({behavior:'smooth'});
-                    }} className="pixelfont text-[11px] px-5 py-[14px] rounded-[8px] bg-[#18251f] text-[#b8f4ce] border-2 border-[#2c5540] cursor-pointer">
+                    <button 
+                      onClick={()=> {
+                        const hsEl = document.getElementById('scores');
+                        hsEl?.scrollIntoView({behavior:'smooth'});
+                      }} 
+                      className="pixelfont text-[10px] px-5 py-[11px] sm:px-5 sm:py-[12px] rounded-[8px] bg-[#18251f] text-[#b8f4ce] border-2 border-[#2c5540] cursor-pointer hover:bg-[#203229] transition-all"
+                    >
                       HIGH SCORES
                     </button>
                   </div>
-                  <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left vtt text-[18px] text-[#a3c9af]">
-                    <div className="bg-[#0f1a16]/90 border border-[#204131] rounded-lg p-3"><span className="pixelfont text-[9px] text-[#ffd86c] block mb-1">FAST COMBAT</span>Slash, dash, stun. 8-dir tight arcade.</div>
-                    <div className="bg-[#0f1a16]/90 border border-[#204131] rounded-lg p-3"><span className="pixelfont text-[9px] text-[#ffd86c] block mb-1">QUEST CHAIN</span>5 linked RPG tasks + boss finish.</div>
-                    <div className="bg-[#0f1a16]/90 border border-[#204131] rounded-lg p-3"><span className="pixelfont text-[9px] text-[#ffd86c] block mb-1">JUICE</span>Screen shake, particles, hit-stop.</div>
-                  </div>
-                  <div className="pixelfont text-[8px] sm:text-[9px] text-[#709a7f] mt-5">Keyboard + full touch • 60fps • instant restart</div>
+                  <div className="pixelfont text-[8px] sm:text-[9px] text-[#709a7f] mt-6">Keyboard + Touch Controls • 60 FPS • Instant Restart</div>
                 </div>
               </div>
             )}
