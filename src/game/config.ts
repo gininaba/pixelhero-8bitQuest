@@ -13,10 +13,10 @@ export const ZONES: { id: ZoneId; name: string; colorTop: string; colorBot: stri
 ];
 
 export const getInitialQuests = (): Quest[] => [
-  { id:'floor', title:'FLOOR RUNNER', desc:'Descend deeper into the dungeon', target:10, progress:0, done:false, zoneHint:'any' },
-  { id:'kills', title:'MONSTER SLAYER', desc:'Defeat dungeon monsters', target:25, progress:0, done:false, zoneHint:'any' },
-  { id:'coins', title:'GOLD COLLECTOR', desc:'Gather coins from fallen foes', target:50, progress:0, done:false, zoneHint:'any' },
-  { id:'bosses', title:'BOSS CRUSHER', desc:'Defeat floor mini-bosses', target:3, progress:0, done:false, zoneHint:'any' },
+  { id:'floor', title:'DUNGEON DELVER', desc:'Descend to Floor 5', target:5, progress:0, done:false, zoneHint:'any' },
+  { id:'kills', title:'MONSTER SLAYER', desc:'Defeat 15 dungeon monsters', target:15, progress:0, done:false, zoneHint:'any' },
+  { id:'coins', title:'GOLD HOARDER', desc:'Collect 30 coins', target:30, progress:0, done:false, zoneHint:'any' },
+  { id:'bosses', title:'BOSS CRUSHER', desc:'Defeat a floor boss', target:1, progress:0, done:false, zoneHint:'any' },
 ];
 
 export function getFloorTheme(floor: number) {
@@ -37,7 +37,7 @@ export const ENEMY_STATS: Record<string, { hp: number; dmg: number; spd: number;
   shadow_warden:  { hp: 520, dmg: 22, spd: 1.00, attackCd: 32 },
 };
 
-export const XP_PER_LEVEL = (level: number) => level * 48 + 10;
+export const XP_PER_LEVEL = (level: number) => Math.floor(40 + level * 18 + Math.sqrt(level) * 12);
 
 export interface ShopItem {
   id: string;

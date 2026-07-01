@@ -114,6 +114,9 @@ export const seedZone = (gr: GameState, zone: ZoneId) => {
       const bossScale = ngScale * (1.0 + (floor - 5) * 0.12);
       gr.enemies.push(makeEnemy(bossType, bossX, bossY, bossScale));
       
+      // Spawn merchant near entrance so player can prep before the boss fight
+      gr.decor.push({ id: nextId(), type: 'merchant', x: 120, y: GAME_H / 2, variant: 0 });
+      
       const bossName = bossType === 'sandwyrm' ? 'SAND WYRM' : bossType === 'boss' ? 'GRUK THE ROT-TUSK' : 'SHADOW WARDEN';
       spawnFloater(gr, { x: bossX, y: bossY - 45, text: `${bossName} FLOOR`, color: '#ff3366', life: 90, vy: -0.5 });
     } else {

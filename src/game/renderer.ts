@@ -67,6 +67,18 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
     }
   }
 
+  // Draw floor number banner in dungeon
+  if (gr.zone === 1 && gr.dungeonFloor > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.font = '9px "Press Start 2P"';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`FLOOR ${gr.dungeonFloor}`, GAME_W - 16, 130);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+
   // Edge glow transitions
   const edgeGlow = (x: number, txt: string, color = '#ffd75b') => {
     ctx.save();
@@ -93,6 +105,28 @@ export function renderFrame(ctx: CanvasRenderingContext2D, gr: GameState) {
     edgeGlow(GAME_W - 14, 'DUNGEON');
   } else if (gr.zone === 1 && gr.dungeonFloor === 1) {
     edgeGlow(18, 'TOWN');
+  }
+
+  // Draw combo counter near player
+  if (gr.player && gr.comboCount >= 3) {
+    const comboMult = gr.comboCount >= 10 ? 4 : gr.comboCount >= 6 ? 3 : gr.comboCount >= 3 ? 2 : 1;
+    const barPct = gr.comboTimer / 180;
+    const px = gr.player.x;
+    const py = gr.player.y + 24;
+    ctx.save();
+    ctx.globalAlpha = 0.7 + Math.sin(gr.frame * 0.2) * 0.15;
+    ctx.font = '10px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = comboMult >= 4 ? '#ff55aa' : comboMult >= 3 ? '#ffaa44' : '#ffe76a';
+    ctx.fillText(`x${comboMult}`, px, py);
+    // Combo timer bar
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(px - 16, py + 3, 32, 3);
+    ctx.fillStyle = comboMult >= 4 ? '#ff55aa' : comboMult >= 3 ? '#ffaa44' : '#ffe76a';
+    ctx.fillRect(px - 16, py + 3, Math.round(32 * barPct), 3);
+    ctx.textAlign = 'left';
+    ctx.restore();
   }
 
   // Draw NPCs in town

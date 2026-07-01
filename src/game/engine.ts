@@ -31,6 +31,9 @@ export function resetWorld(gr: GameState, keepPerks = false) {
   gr.waveCleared = false;
   gr.waveEnemiesLeft = 0;
   gr.lightningStrike = null;
+  gr.comboCount = 0;
+  gr.comboTimer = 0;
+  gr.bestCombo = 0;
 
   gr.player = {
     x: GAME_W / 2, y: GAME_H / 2 + 40,
@@ -85,17 +88,17 @@ export function completeQuestProgress(gr: GameState, questId: string, amt = 1) {
       q.done = false;
       q.progress = 0;
       if (questId === 'floor') {
-        q.target += 10;
+        q.target += 5;
         q.desc = `Descend to Floor ${q.target}`;
       } else if (questId === 'kills') {
-        q.target += 25;
+        q.target += 15;
         q.desc = `Defeat ${q.target} dungeon monsters`;
       } else if (questId === 'coins') {
-        q.target += 50;
-        q.desc = `Gather ${q.target} total coins`;
+        q.target += 30;
+        q.desc = `Collect ${q.target} total coins`;
       } else if (questId === 'bosses') {
-        q.target += 3;
-        q.desc = `Defeat ${q.target} floor mini-bosses`;
+        q.target += 2;
+        q.desc = `Defeat ${q.target} floor bosses`;
       }
     } else {
       return;
@@ -161,8 +164,7 @@ export function doAttack(gr: GameState) {
     }
 
     if (inArc) {
-      const ngDmgScale = gr.ngPlus ? 1 : 1;
-      const dmg = Math.floor((24 + Math.floor(pl.level * 2.5) + pl.damageBonus) * ngDmgScale);
+      const dmg = Math.floor(24 + Math.floor(pl.level * 2.5) + pl.damageBonus);
       e.hp -= dmg;
       e.hitFlash = 7;
       e.stun = 10;
@@ -205,29 +207,27 @@ export function tryInteract(gr: GameState, setDialog: any, setPhase: any) {
         setDialog({
           speaker: 'ELDER MAEL',
           lines: [
-            "The bean fields rot, child.",
-            "Gruk stole the Seed Ember!",
-            "Slay 7 slimes. Gather 4 moon herbs.",
-            "The Rusted Key waits in the wood.",
-            "Cross the Wastes. Brave the Depths.",
-            "End the Shadow that festers below."
+            "The dungeon below festers with evil.",
+            "Descend through its floors, hero.",
+            "Every fifth floor, a great beast guards the way.",
+            "The merchant at the edge of town will aid you.",
+            "Reach Floor 15 and end the Shadow Warden.",
+            "May the Seed Ember guide your blade."
           ],
           idx: 0
         });
         gr.phase = 'dialog';
         setPhase('dialog');
         gr.elderTalked = true;
-        completeQuestProgress(gr, 'talk', 1);
       } else {
-        const allDone = gr.quests.every(q => q.done);
         setDialog({
           speaker: 'ELDER MAEL',
           lines: [
-            allDone
-              ? "You did it! Emberwick breathes again."
-              : gr.grukDefeated
-              ? "The Shadow Warden awaits in the Sanctum..."
-              : "The woods whisper your name, hero."
+            gr.dungeonFloor >= 15
+              ? "You've conquered the depths! The dungeon calls you back for glory."
+              : gr.dungeonFloor > 0
+              ? `You've reached Floor ${gr.dungeonFloor}. Keep pushing deeper, hero.`
+              : "The dungeon entrance lies to the east. Be brave."
           ],
           idx: 0
         });
@@ -581,27 +581,40 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
       };
 
       pl.xp += xpTable[e.type] ?? 9;
-      gr.score += scoreTable[e.type] ?? 65;
-      pl.coins += coinTable[e.type] ?? 1;
-      spawnFloater(gr, { x: e.x, y: e.y - 8, text: `+${scoreTable[e.type] ?? 65}`, color: '#aaffc9', life: 56, vy: -0.62 });
+
+      // Combo system: kills within 180 frames build multiplier
+      gr.comboCount++;
+      gr.comboTimer = 180; // ~3 seconds at 60fps
+      if (gr.comboCount > gr.bestCombo) gr.bestCombo = gr.comboCount;
+      const comboMult = gr.comboCount >= 10 ? 4 : gr.comboCount >= 6 ? 3 : gr.comboCount >= 3 ? 2 : 1;
+      const baseScore = scoreTable[e.type] ?? 65;
+      const earnedScore = baseScore * comboMult;
+      gr.score += earnedScore;
+      // Coins only come from drops — no double counting
+      if (comboMult > 1) {
+        spawnFloater(gr, { x: e.x, y: e.y - 28, text: `x${comboMult} COMBO`, color: comboMult >= 4 ? '#ff55aa' : comboMult >= 3 ? '#ffaa44' : '#ffe76a', life: 48, vy: -0.8 });
+        audio.playSfx('coin');
+      }
+      spawnFloater(gr, { x: e.x, y: e.y - 8, text: `+${earnedScore}`, color: '#aaffc9', life: 56, vy: -0.62 });
       
       // Infinite dungeon quests progress
       completeQuestProgress(gr, 'kills', 1);
       if (isBoss) {
         completeQuestProgress(gr, 'bosses', 1);
         
-        // Spawn Merchant next to exit portal in dungeon
-        const spawnObj = gr.decor.find(d => d.type === 'stairs') ?? { x: e.x, y: e.y };
-        gr.decor.push({ id: nextId(), type: 'merchant', x: spawnObj.x - 52, y: spawnObj.y, variant: 0 });
-        spawnFloater(gr, { x: spawnObj.x - 52, y: spawnObj.y - 20, text: 'MERCHANT ARRIVED', color: '#ffec9a', life: 72, vy: -0.6 });
+        // Spawn Merchant next to exit portal — only if one doesn't already exist
+        const hasMerchant = gr.decor.some(d => d.type === 'merchant');
+        if (!hasMerchant) {
+          const spawnObj = gr.decor.find(d => d.type === 'stairs') ?? { x: e.x, y: e.y };
+          gr.decor.push({ id: nextId(), type: 'merchant', x: spawnObj.x - 52, y: spawnObj.y, variant: 0 });
+          spawnFloater(gr, { x: spawnObj.x - 52, y: spawnObj.y - 20, text: 'MERCHANT ARRIVED', color: '#ffec9a', life: 72, vy: -0.6 });
+        }
       }
 
+      // Victory condition: defeating Shadow Warden on boss floor 15+
       if (e.type === 'shadow_warden' && !e.isClone) {
-        if (gr.zone !== 1) {
-          completeQuestProgress(gr, 'shadow_warden', 1);
-          gr.phase = 'victory';
-          setPhase('victory');
-        }
+        gr.phase = 'victory';
+        setPhase('victory');
       }
 
       // Clone death: just remove, no drops
@@ -795,11 +808,12 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
     gr.lightningStrike.life--;
   }
 
-  if (pl.hasLightning && gr.frame % 72 === 0) {
-    const nearby = gr.enemies.filter(e => e.hp > 0 && dist(e, pl) < 240);
+  // Lightning perk: balanced cooldown (150 frames ≈ 2.5s)
+  if (pl.hasLightning && gr.frame % 150 === 0) {
+    const nearby = gr.enemies.filter(e => e.hp > 0 && dist(e, pl) < 200);
     if (nearby.length > 0) {
       const target = nearby[Math.floor(Math.random() * nearby.length)];
-      const dmg = 38 + Math.floor(pl.level * 2.5);
+      const dmg = 22 + Math.floor(pl.level * 1.8);
       target.hp -= dmg;
       target.hitFlash = 7;
       target.stun = 14;
@@ -808,7 +822,7 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
       target.vy += Math.sin(ang) * 3;
       audio.playSfx('hit');
       burstParticles(gr, target.x, target.y - 8, 14, '#9dfffe');
-      spawnFloater(gr, { x: target.x, y: target.y - 18, text: `LIGHTNING ${dmg}`, color: '#9dfffe', life: 48, vy: -0.6 });
+      spawnFloater(gr, { x: target.x, y: target.y - 18, text: `⚡${dmg}`, color: '#9dfffe', life: 48, vy: -0.6 });
       gr.lightningStrike = { x: target.x, y: target.y, life: 6 };
       gr.shake = Math.max(gr.shake, 3.5);
     }
@@ -823,7 +837,7 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
       if (e.type === 'sandwyrm' && e.burrowed) continue;
       if (Math.hypot(e.x - sx, e.y - sy) < 26) {
         if (e.stun <= 0) {
-          const dmg = 12 + Math.floor(pl.level * 1.2);
+          const dmg = 6 + Math.floor(pl.level * 0.8);
           e.hp -= dmg;
           e.hitFlash = 6;
           e.stun = 10;
@@ -846,10 +860,13 @@ export function updateWorld(gr: GameState, inputs: InputState, dtClamp: number, 
 
   if (gr.shake > 0) gr.shake *= 0.82;
 
-  // Score computation
-  const surviveSec = Math.floor((performance.now() - gr.gameStartTime) / 1000);
-  const ngMult = gr.ngPlus ? 2 : 1;
-  gr.score = (pl.coins * 15 + gr.kills * 44 + pl.level * 60 + surviveSec * 2 + gr.quests.filter(q => q.done).length * 240) * ngMult;
+  // Combo timer decay
+  if (gr.comboTimer > 0) {
+    gr.comboTimer--;
+    if (gr.comboTimer <= 0) {
+      gr.comboCount = 0;
+    }
+  }
 }
 
 // ===== BOSS AI FUNCTIONS =====

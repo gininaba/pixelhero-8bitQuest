@@ -13,57 +13,44 @@
 
 ---
 
-Embark on an epic quest in a retro-inspired world, battle dangerous creatures, collect powerful upgrades, and defeat the Shadow Warden! PixelHero is a complete game engine running entirely on the web, bypassing standard DOM nodes in favor of a highly-optimized `requestAnimationFrame` Canvas renderer.
+Embark on an epic quest in a retro-inspired world, battle dangerous creatures, collect powerful upgrades, and defeat the Shadow Warden. PixelHero is a complete game engine running entirely on the web, bypassing standard DOM nodes in favor of a highly-optimized requestAnimationFrame Canvas renderer.
 
 ## Features
 
-- **Action RPG Combat**: Real-time hack-and-slash combat with dashing, attacking, invincibility frames, and hit-stun mechanics.
-- **Infinite Dungeon Mode**: Descend into a procedurally seeded dungeon with infinite floors. Features automatic difficulty scaling, boss encounters every 5 floors, and infinitely looping quests with scaling targets.
-- **Procedural Merchant NPC**: Spawns next to the stairs portal on every boss floor immediately after the boss is defeated, allowing full shop interactions and upgrade purchases deep in the dungeon.
+- **Action RPG Combat**: Real-time hack-and-slash combat with dashing, attacking, invincibility frames, hit-stun mechanics, and a fast-paced combo scoring system.
+- **Infinite Dungeon Mode**: Descend into a procedurally seeded dungeon with infinite floors. Features automatic difficulty scaling, cycling visual themes, boss encounters every 5 floors, and infinitely looping quests with scaling targets.
+- **Procedural Merchant NPC**: Spawns next to the stairs portal on every boss floor allowing full shop interactions and upgrade purchases deep in the dungeon to prepare for the boss fight.
 - **Skill Powerup Perks**: Unlocks powerful spells during leveling:
   - **Flame Blessing**: Launches piercing fireballs with sword attacks.
   - **Thunder Spell**: Calls down zigzag lightning bolts to strike and stun random nearby enemies, accompanied by dynamic screen flashes.
   - **Shield Aura**: Summons a spinning blue energy sphere orbiting the player that damages and knocks back contacting enemies.
 - **Dynamic Entities**: 9 unique enemy types including slimes, bats, goblins, scorpions, wraiths, skeletal knights, and 3 distinct bosses (Gruk, Sand Wyrm, Shadow Warden) with custom AI.
-- **Quest System**: A structured quest system featuring linear story progression in standard zones and infinitely scaling auto-rollover quests in the infinite dungeon.
-- **Expansive Zones**: Travel between 5 distinct environments:
-  - Emberwick (Safe Zone)
-  - Gloomwood
-  - Scorched Wastes
-  - Hollow Depth
-  - Abyssal Sanctum (Features a 3-wave gauntlet)
-- **Loot & Leveling**: Gain XP, level up your stats, visit the merchant, and collect coins, hearts, and relics.
-- **New Game+**: Replay with scaled difficulty (Enemies +50% HP, +30% Damage), while retaining your perks and upgrades.
-- **Procedural Audio**: 3 distinct, procedural MIDI-like music themes (Desert, Dungeon, Sanctum) and synthesized sound effects.
+- **Quest System**: A structured quest system featuring infinitely scaling auto-rollover quests tracking floors cleared, monsters slain, and gold collected.
+- **Loot and Leveling**: Gain XP, level up your stats with a balanced scaling curve, visit the merchant, and collect coins, hearts, and relics.
+- **New Game Plus**: Replay with scaled difficulty after conquering Floor 15, while retaining your perks and upgrades.
+- **Procedural Audio**: 3 distinct, procedural MIDI-like music themes (Desert, Dungeon, Sanctum) and synthesized sound effects for combat and UI.
 - **Modern Tech Stack**: React 19, Vite 7, TailwindCSS v4, and TypeScript.
-- **Self-Contained Single-File Build**: Bundles all scripts, CSS, and structural configurations directly into a single lightweight HTML index (`index.html`) using `vite-plugin-singlefile` for instant page loads.
+- **Self-Contained Single-File Build**: Bundles all scripts, CSS, and structural configurations directly into a single lightweight HTML index using vite-plugin-singlefile for instant page loads.
 
-## Recent Bug Fixes
+## Premium UI/UX Features
 
-- **Zone Seeding and Softlock Prevention**: Fixed an issue where leaving a boss zone before defeating the boss would prevent the boss from respawning upon re-entry.
-- **Key Recovery System**: Implemented automated key-recovery triggers. If a player defeats the Sand Wyrm or Gruk the Rot-Tusk but leaves the zone before collecting the Hollow Key or Sanctum Seal, the corresponding item will correctly spawn in the center of the zone upon re-entry.
-- **Shadow Warden Boss AI Balance**: Fixed an issue where shadow clones would teleport and spawn secondary clones. Now, only the primary Shadow Warden teleports and spawns clones.
-- **Score Submission Quality of Life**: Added a state check to disable duplicate score submissions, providing clear visual feedback by changing the button to "SAVED" and disabling clicking.
-
-### Premium UI/UX Features
-
-- **Non-Scrollable Viewport Lock (`100dvh`)**: The entire page is locked to the screen heights. The layout operates as a cohesive, scrollbar-free retro cabinet console.
+- **Non-Scrollable Viewport Lock**: The entire page is locked to the screen heights. The layout operates as a cohesive, scrollbar-free retro cabinet console.
 - **Curved Glass CRT Monitor Simulation**: The canvas container simulates a retro glass monitor utilizing horizontal scanlines, vignetting, custom RGB subgrids, and high-frequency phosphor flicker.
 - **3D Moving Horizon Menu Grid**: An animated retro-wave perspective grid moving dynamically under the main menu.
-- **Tabbed Dashboard Console & Mobile Compass Drawer**: All sidebar statistics, maps, active tasks, and high scores are consolidated into modular tabs:
+- **Tabbed Dashboard Console and Mobile Compass Drawer**: All sidebar statistics, maps, active tasks, and high scores are consolidated into modular tabs:
   - **QST (Quests)**: Check active quest details and task completion meters.
   - **MAP (World Map)**: Shows active zone and combat status.
   - **STS (Stats)**: Shows player stats alongside integrated controls reference.
   - **HOF (Hall of Heroes)**: Display leaderboard entries.
-  - *On mobile viewports, these tabs are accessible via a sliding fullscreen compass overlay drawer (`[MENU]`).*
-- **Universal Pointer Joystick (Gamepad)**: Joysticks are integrated with **PointerEvents** rather than touch-events. Includes **Pointer Capture** to track dragging outside the joystick circle smoothly, and works out-of-the-box for both touch screens, styluses, and mouse drag inputs.
+  - On mobile viewports, these tabs are accessible via a sliding fullscreen compass overlay drawer.
+- **Universal Pointer Joystick (Gamepad)**: Joysticks are integrated with PointerEvents rather than touch-events. Includes Pointer Capture to track dragging outside the joystick circle smoothly, and works out-of-the-box for touch screens, styluses, and mouse drag inputs.
 - **Adaptive Screen Configurations**:
-  - *Landscape Mode*: Maximizes the canvas inside the screen, floating controls transparently on left/right screen margins.
-  - *Portrait Mode*: Stacks the canvas at the top and allocates the lower half as a tactile, dedicated gamepad panel to keep fingers off the screen.
+  - Landscape Mode: Maximizes the canvas inside the screen, floating controls transparently on left/right screen margins.
+  - Portrait Mode: Stacks the canvas at the top and allocates the lower half as a tactile, dedicated gamepad panel to keep fingers off the screen.
 
 ## Setup Instructions
 
-1. **Clone the repository** (if you haven't already):
+1. **Clone the repository**:
    ```bash
    git clone <your-repo-url>
    cd PixelHero
@@ -80,7 +67,7 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
    ```
 
 4. **Open in Browser**:
-   Navigate to `http://localhost:5173` (or the port Vite provides) to play the game!
+   Navigate to http://localhost:5173 to play the game.
 
 5. **Build for Production**:
    Build the self-contained single file build:
@@ -89,38 +76,38 @@ Embark on an epic quest in a retro-inspired world, battle dangerous creatures, c
    ```
    The output is built at `dist/index.html`.
 
-## Usage & Controls
+## Usage and Controls
 
 ### Keyboard controls (Desktop)
-- **Movement**: `W` `A` `S` `D` or `Arrow Keys`
-- **Attack**: `Space`, `J`, or `K`
-- **Dash**: `Shift` or `L`
-- **Interact / Talk**: `E` or `F`
-- **Pause Game**: `Escape` or `P`
-- **Quest Log**: `Q`
-- **Instant Restart**: `R`
+- **Movement**: W, A, S, D or Arrow Keys
+- **Attack**: Space, J, or K
+- **Dash**: Shift or L
+- **Interact / Talk / Next Dialog**: E, F, or Enter
+- **Pause Game**: Escape or P
+- **Quest Log**: Q
+- **Instant Restart**: R
 
 ### Gamepad controls (Mobile / Touch Devices)
-- **Movement**: Touch/click and drag the virtual **Joystick knob** (labeled `MOVE`).
-- **Attack**: Tap the red **`ATK`** button.
-- **Dash**: Tap the blue **`DSH`** button.
-- **Interact / Talk**: Tap the yellow **`USE`** button.
+- **Movement**: Touch/click and drag the virtual Joystick knob (labeled MOVE).
+- **Attack**: Tap the red ATK button.
+- **Dash**: Tap the blue DSH button.
+- **Interact / Talk**: Tap the yellow USE button.
 
 ## Documentation
 
-For detailed insights into the project, check out the `docs/` folder:
+For detailed insights into the project, check out the docs folder:
 
-- [Project Structure](docs/PROJECT_STRUCTURE.md)
-- [Architecture & Flow](docs/ARCHITECTURE.md)
-- [Key Components](docs/COMPONENTS_AND_FLOW.md)
-- [Internal API Reference](docs/API_REFERENCE.md)
-- [Onboarding](docs/ONBOARDING.md)
-- [Environment Configuration](docs/ENVIRONMENT.md)
+- Project Structure
+- Architecture and Flow
+- Key Components
+- Internal API Reference
+- Onboarding
+- Environment Configuration
 
 ## Contribution Guidelines
 
-We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started. Whether it's adding a new enemy, zone, or fixing a bug, your help is appreciated.
+We welcome contributions. Please see our CONTRIBUTING.md for details on how to get started. Whether it is adding a new enemy, zone, or fixing a bug, your help is appreciated.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the LICENSE file for details.

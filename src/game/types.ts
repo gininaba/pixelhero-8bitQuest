@@ -113,6 +113,8 @@ export interface HighScore {
   score: number;
   day: string;
   ngPlus?: boolean;
+  floor?: number;
+  totalTime?: number;
 }
 
 export interface GameState {
@@ -155,4 +157,8 @@ export interface GameState {
   // Infinite Dungeon
   dungeonFloor: number;
   lightningStrike: { x: number; y: number; life: number } | null;
+  // Combo system
+  comboCount: number;
+  comboTimer: number;
+  bestCombo: number;
 }

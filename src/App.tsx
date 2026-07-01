@@ -122,20 +122,23 @@ export default function App() {
     ngPlus: false,
     ngPlusLevel: 0,
     dungeonFloor: 0,
-    lightningStrike: null
+    lightningStrike: null,
+    comboCount: 0,
+    comboTimer: 0,
+    bestCombo: 0
   });
 
   const keysRef = useRef<Record<string, boolean>>({});
   const touchMoveRef = useRef<Vec>({ x: 0, y: 0 });
   const touchActiveRef = useRef(false);
+  const touchAttackRef = useRef(false);
+  const touchDashRef = useRef(false);
+  const touchInteractRef = useRef(false);
 
   const [phase, setPhase] = useState<GamePhase>('menu');
   const [hudTick, setHudTick] = useState(0);
   const [dialog, setDialog] = useState<{ speaker: string; lines: string[]; idx: number } | null>(null);
   const [questLogOpen, setQuestLogOpen] = useState(false);
-  const [touchAttack, setTouchAttack] = useState(false);
-  const [touchDash, setTouchDash] = useState(false);
-  const [touchInteract, setTouchInteract] = useState(false);
   const [nameInput, setNameInput] = useState('HERO');
   const [muted, setMuted] = useState(() => audio.isMuted());
   const [highScores, setHighScores] = useState<HighScore[]>(() => {
@@ -239,6 +242,9 @@ export default function App() {
       if (e.key === ' ' || e.key.toLowerCase() === 'enter') {
         if (gr.phase === 'dialog') {
           e.preventDefault();
+          // Advance dialog with Space/Enter
+          const currentDialog = document.querySelector('[data-dialog-next]') as HTMLButtonElement | null;
+          if (currentDialog) currentDialog.click();
         }
       }
     };
@@ -368,16 +374,16 @@ export default function App() {
 
       const inputs: InputState = {
         ix, iy,
-        attack: keys[' '] || keys['j'] || keys['k'] || touchAttack,
-        dash: keys['shift'] || keys['l'] || touchDash,
-        interact: keys['e'] || keys['f'] || touchInteract
+        attack: keys[' '] || keys['j'] || keys['k'] || touchAttackRef.current,
+        dash: keys['shift'] || keys['l'] || touchDashRef.current,
+        interact: keys['e'] || keys['f'] || touchInteractRef.current
       };
 
-      if (inputs.attack) setTouchAttack(false);
-      if (inputs.dash) setTouchDash(false);
+      if (inputs.attack) touchAttackRef.current = false;
+      if (inputs.dash) touchDashRef.current = false;
       if (inputs.interact) {
         keys['e'] = false; keys['f'] = false;
-        setTouchInteract(false);
+        touchInteractRef.current = false;
       }
 
       updateWorld(gr, inputs, dtClamp, setDialog, setPhase);
@@ -385,13 +391,14 @@ export default function App() {
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [phase, touchAttack, touchDash, touchInteract]);
+  }, [phase]);
 
   const saveScore = () => {
     if (scoreSaved) return;
     const gr = gameRef.current;
     const finalScore = gr.score;
-    const entry: HighScore = { name: nameInput.slice(0, 8).toUpperCase() || 'HERO', score: finalScore, day: new Date().toLocaleDateString('en-CA') };
+    const totalTime = Math.floor((performance.now() - gr.gameStartTime) / 1000);
+    const entry: HighScore = { name: nameInput.slice(0, 8).toUpperCase() || 'HERO', score: finalScore, day: new Date().toLocaleDateString('en-CA'), floor: gr.dungeonFloor, totalTime };
     const next = [...highScores, entry].sort((a, b) => b.score - a.score).slice(0, 7);
     setHighScores(next);
     localStorage.setItem('pixHeroScores', JSON.stringify(next));
@@ -601,7 +608,10 @@ export default function App() {
                       <span className={`pixelfont text-[8px] ${idx === 0 ? 'text-[#ffcf6b]' : idx === 1 ? 'text-[#dedede]' : idx === 2 ? 'text-[#b98a58]' : 'text-[#7a8a83]'}`}>{idx + 1}.</span>
                       <span className="pixelfont text-[8px] text-[#b8ffd8]">{s.name}</span>
                     </div>
-                    <span className="text-[#ffeb85] font-bold">{s.score.toLocaleString()}</span>
+                    <div className="flex items-center gap-3">
+                      {s.floor && <span className="text-[#9fdfff]">F{s.floor}</span>}
+                      <span className="text-[#ffeb85] font-bold">{s.score.toLocaleString()}</span>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -616,7 +626,6 @@ export default function App() {
   return (
     <div className="h-screen w-full bg-[#05080a] text-[#e8efe8] flex flex-col overflow-hidden select-none" style={{ fontFamily: '"VT323", monospace' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
         .pixelfont { font-family: "Press Start 2P", monospace; }
         .vtt { font-family: "VT323", monospace; }
         canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
@@ -705,7 +714,12 @@ export default function App() {
                 <span className="text-[#ffe36a]">SCORE {g.score.toLocaleString()}</span>
                 <span className="text-[#8fffb7]">¢ {g.player?.coins ?? 0}</span>
                 <span className="text-[#ff9ab0]">LV {g.player?.level ?? 1}</span>
-                <span className="text-[#9fdfff]">{ZONES[g.zone]?.name}</span>
+                <span className="text-[#9fdfff]">{g.zone === 0 ? 'EMBERWICK' : `FLOOR ${g.dungeonFloor}`}</span>
+                {g.comboCount >= 3 && (
+                  <span className={`animate-pulse font-bold tracking-wider ${g.comboCount >= 10 ? 'text-[#ff55aa]' : g.comboCount >= 6 ? 'text-[#ffaa44]' : 'text-[#ffe76a]'}`}>
+                    x{g.comboCount >= 10 ? 4 : g.comboCount >= 6 ? 3 : 2} COMBO
+                  </span>
+                )}
                 {g.player?.hasFireball && (
                   <span className="inline-flex items-center gap-1 text-[#ffa043] animate-pulse text-[10px] font-bold tracking-widest">
                     <FireballIcon className="w-3.5 h-3.5 shrink-0" />
@@ -771,20 +785,20 @@ export default function App() {
                 {/* right action buttons */}
                 <div className="pointer-events-auto absolute right-6 bottom-6 flex flex-col gap-2.5">
                   <button
-                    onPointerDown={(e) => { e.preventDefault(); setTouchAttack(true); }}
+                    onPointerDown={(e) => { e.preventDefault(); touchAttackRef.current = true; }}
                     className="touch-btn w-[68px] h-[68px] rounded-full bg-[#d84349]/90 border-2 border-[#ffb8be] active:scale-95 transition flex items-center justify-center shadow-lg cursor-pointer"
                   >
                     <div className="pixelfont text-[10px] text-white pointer-events-none">ATK</div>
                   </button>
                   <div className="flex gap-2">
                     <button
-                      onPointerDown={(e) => { e.preventDefault(); setTouchDash(true); }}
+                      onPointerDown={(e) => { e.preventDefault(); touchDashRef.current = true; }}
                       className="touch-btn w-[52px] h-[46px] rounded-[10px] bg-[#2688c7]/90 border-2 border-[#a8e7ff] active:scale-95 flex items-center justify-center shadow-md cursor-pointer"
                     >
                       <div className="pixelfont text-[8px] text-white pointer-events-none">DSH</div>
                     </button>
                     <button
-                      onPointerDown={(e) => { e.preventDefault(); setTouchInteract(true); }}
+                      onPointerDown={(e) => { e.preventDefault(); touchInteractRef.current = true; }}
                       className="touch-btn w-[52px] h-[46px] rounded-[10px] bg-[#f2c242]/90 border-2 border-[#fff2b8] active:scale-95 flex items-center justify-center shadow-md cursor-pointer"
                     >
                       <div className="pixelfont text-[8px] text-[#301d00] pointer-events-none">USE</div>
@@ -873,20 +887,20 @@ export default function App() {
               {/* right action buttons */}
               <div className="pointer-events-auto absolute right-[8%] top-1/2 -translate-y-1/2 flex flex-col gap-3">
                 <button
-                  onPointerDown={(e) => { e.preventDefault(); setTouchAttack(true); }}
+                  onPointerDown={(e) => { e.preventDefault(); touchAttackRef.current = true; }}
                   className="touch-btn w-[80px] h-[80px] rounded-full bg-[#d84349] border-2 border-[#ffb8be] active:scale-95 transition flex items-center justify-center shadow-lg cursor-pointer"
                 >
                   <div className="pixelfont text-[11px] text-white pointer-events-none">ATK</div>
                 </button>
                 <div className="flex gap-3">
                   <button
-                    onPointerDown={(e) => { e.preventDefault(); setTouchDash(true); }}
+                    onPointerDown={(e) => { e.preventDefault(); touchDashRef.current = true; }}
                     className="touch-btn w-[56px] h-[48px] rounded-[10px] bg-[#2688c7] border-2 border-[#a8e7ff] active:scale-95 flex items-center justify-center shadow-md cursor-pointer"
                   >
                     <div className="pixelfont text-[8px] text-white pointer-events-none">DSH</div>
                   </button>
                   <button
-                    onPointerDown={(e) => { e.preventDefault(); setTouchInteract(true); }}
+                    onPointerDown={(e) => { e.preventDefault(); touchInteractRef.current = true; }}
                     className="touch-btn w-[56px] h-[48px] rounded-[10px] bg-[#f2c242] border-2 border-[#fff2b8] active:scale-95 flex items-center justify-center shadow-md cursor-pointer"
                   >
                     <div className="pixelfont text-[8px] text-[#301d00] pointer-events-none">USE</div>
@@ -994,6 +1008,7 @@ export default function App() {
                       }
                     }}
                     className="pixelfont text-[9px] px-3.5 py-1.5 bg-[#f2d467] text-[#2a1c00] rounded border border-[#fff3b6] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                    data-dialog-next
                   >NEXT ▶</button>
                 </div>
               </div>
@@ -1007,7 +1022,7 @@ export default function App() {
                 <div className="pixelfont text-[9px] text-[#ff9aa8]">EMBERWICK HAS FALLEN</div>
                 <div className="pixelfont text-[18px] sm:text-[22px] text-[#ffe6e9] mt-2">GAME OVER</div>
                 <div className="vtt text-[22px] text-[#ffcfcf] mt-2 bg-[#251016] border border-[#4d1f2a] rounded-lg py-2.5 px-4 inline-block">
-                  Score: <span className="text-[#ffe06a] font-bold">{g.score.toLocaleString()}</span> • Kills: {g.kills} • Lv: {g.player?.level}
+                  Score: <span className="text-[#ffe06a] font-bold">{g.score.toLocaleString()}</span> • Floor: {g.dungeonFloor} • Kills: {g.kills} • Lv: {g.player?.level}
                 </div>
 
                 <div className="mt-5 flex gap-2 justify-center items-center">
@@ -1045,7 +1060,7 @@ export default function App() {
 
                 <div className="vtt text-[20px] text-[#c7f7d0] mt-2 bg-[#12241b] border border-[#234735] rounded-lg p-3">
                   Emberwick breathes again under the light.<br />
-                  Score: <span className="text-[#ffe06a] font-bold">{g.score.toLocaleString()}</span> — Kills: {g.kills} — Time: {Math.floor((performance.now() - g.gameStartTime) / 1000)}s
+                  Score: <span className="text-[#ffe06a] font-bold">{g.score.toLocaleString()}</span> — Floor: {g.dungeonFloor} — Kills: {g.kills} — Best Combo: x{g.bestCombo}
                 </div>
 
                 <div className="mt-5 flex gap-2 justify-center items-center">
